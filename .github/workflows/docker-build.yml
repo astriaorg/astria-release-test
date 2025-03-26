@@ -49,7 +49,7 @@ jobs:
       id-token: write
       packages: write
     with:
-      depot-project-id: 1kp2p2bvbr
+      depot-project-id: 0q41v32h7j
       package-name: auctioneer
       binary-name: auctioneer
       tag: ${{ inputs.tag }}
@@ -65,7 +65,7 @@ jobs:
       id-token: write
       packages: write
     with:
-      depot-project-id: mhgvgvsjnx
+      depot-project-id: 0q41v32h7j
       package-name: composer
       binary-name: composer
       tag: ${{ inputs.tag }}
@@ -81,7 +81,7 @@ jobs:
       id-token: write
       packages: write
     with:
-      depot-project-id: zrh9t1d84s
+      depot-project-id: 0q41v32h7j
       package-name: conductor
       binary-name: conductor
       tag: ${{ inputs.tag }}
@@ -97,7 +97,7 @@ jobs:
       id-token: write
       packages: write
     with:
-      depot-project-id: brzhxfbv9b
+      depot-project-id: 0q41v32h7j
       package-name: sequencer
       binary-name: sequencer
       tag: ${{ inputs.tag }}
@@ -113,7 +113,7 @@ jobs:
       id-token: write
       packages: write
     with:
-      depot-project-id: 86q4kz4wfs
+      depot-project-id: 0q41v32h7j
       package-name: sequencer-relayer
       binary-name: sequencer-relayer
       tag: ${{ inputs.tag }}
@@ -129,7 +129,7 @@ jobs:
       id-token: write
       packages: write
     with:
-      depot-project-id: dl81f3fc6x
+      depot-project-id: 0q41v32h7j
       package-name: evm-bridge-withdrawer
       binary-name: bridge-withdrawer
       tag: ${{ inputs.tag }}
@@ -145,7 +145,7 @@ jobs:
       id-token: write
       packages: write
     with:
-      depot-project-id: kcchkd09m0
+      depot-project-id: 0q41v32h7j
       package-name: astria-cli
       binary-name: cli
       tag: ${{ inputs.tag }}
