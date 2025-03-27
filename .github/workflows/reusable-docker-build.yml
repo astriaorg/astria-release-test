@@ -22,6 +22,11 @@ on:
         required: false
         type: boolean
         default: false
+      # INFRA-MAR-25: Add new input parameter for image suffix
+      image-suffix:
+        type: string
+        default: ""
+        required: false
     secrets:
       DOCKER_TOKEN:
         required: false
@@ -31,6 +36,8 @@ env:
   REGISTRY: ghcr.io
   FULL_REF: ${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.ref }}
   FULL_BINARY_NAME: ${{ inputs.binary-prefix }}-${{ inputs.binary-name }}
+  # INFRA-MAR-25: Modify package name to include image suffix if exists
+  PACKAGE_NAME: ${{ inputs.package-name }}${{ inputs.image-suffix != '' && format('-{0}', inputs.image-suffix) || '' }}
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -63,7 +70,8 @@ jobs:
         id: metadata
         uses: docker/metadata-action@v4
         with:
-          images: ${{ format('ghcr.io/astriaorg/{0}', inputs.package-name) }}
+          # INFRA-MAR-25: Modify package name to include image suffix if exists
+          images: ${{ format('ghcr.io/astriaorg/{0}', env.PACKAGE_NAME) }}
           tags: |
             type=ref,event=pr
             type=match,pattern=refs/tags/${{ inputs.binary-name }}-v(.*),group=1,enable=${{ startsWith(env.FULL_REF, 'refs/tags/') }},value=${{ env.FULL_REF }}
