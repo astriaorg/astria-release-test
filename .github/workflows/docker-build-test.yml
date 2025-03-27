@@ -1,0 +1,34 @@
+name: Docker Build Test
+
+# You can trigger this manually or based on specific events
+on:
+  workflow_dispatch:
+    inputs:
+      target:
+        description: Target to build
+        required: true
+        type: choice
+        options:
+          - auctioneer
+          - composer
+          - conductor
+          - sequencer
+          - sequencer-relayer
+          - evm-bridge-withdrawer
+          - cli
+      suffix:
+        description: Image name suffix (e.g., release-test)
+        required: true
+        type: string
+        default: release-test
+
+jobs:
+  build-test-image:
+    uses: ./.github/workflows/reusable-docker-build.yml
+    with:
+      depot-project-id: 0q41v32h7j
+      package-name: ${{ github.event.inputs.target }}
+      binary-name: ${{ github.event.inputs.target }}
+      image-suffix: ${{ github.event.inputs.suffix }}
+      force: true
+    secrets: inherit
