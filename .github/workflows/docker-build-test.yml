@@ -1,5 +1,8 @@
 name: Docker
 
+env:
+  REPO_NAME: astriaorg/astria-release-test
+
 on:
   workflow_dispatch:
     inputs:
@@ -165,7 +168,7 @@ jobs:
 
   smoke-test:
     needs: [run_checker, composer, conductor, sequencer, sequencer-relayer, evm-bridge-withdrawer, cli]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'astriaorg/astria') && (github.event_name == 'merge_group' || needs.run_checker.outputs.run_docker == 'true')
+    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == ${{ env.REPO_NAME }}) && (github.event_name == 'merge_group' || needs.run_checker.outputs.run_docker == 'true')
     runs-on: depot-ubuntu-24.04-8
     steps:
       - uses: actions/checkout@v4
@@ -196,7 +199,7 @@ jobs:
           just run-smoke-test $TAG
   smoke-cli:
     needs: [run_checker, composer, conductor, sequencer, sequencer-relayer, evm-bridge-withdrawer, cli]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'astriaorg/astria') && (github.event_name == 'merge_group' || needs.run_checker.outputs.run_docker == 'true')
+    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == ${{ env.REPO_NAME }}) && (github.event_name == 'merge_group' || needs.run_checker.outputs.run_docker == 'true')
     runs-on: depot-ubuntu-24.04-8
     steps:
       - uses: actions/checkout@v4
@@ -228,7 +231,7 @@ jobs:
 
   ibc-bridge-test:
     needs: [ run_checker, composer, conductor, sequencer, sequencer-relayer, evm-bridge-withdrawer, cli ]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'astriaorg/astria') && (github.event_name == 'merge_group' || needs.run_checker.outputs.run_docker == 'true')
+    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == ${{ env.REPO_NAME }}) && (github.event_name == 'merge_group' || needs.run_checker.outputs.run_docker == 'true')
     runs-on: depot-ubuntu-24.04-8
     steps:
       - uses: actions/checkout@v4
@@ -260,7 +263,7 @@ jobs:
 
   ibc-no-native-asset-test:
     needs: [ run_checker, composer, conductor, sequencer, sequencer-relayer, evm-bridge-withdrawer, cli ]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'astriaorg/astria') && (github.event_name == 'merge_group' || needs.run_checker.outputs.run_docker == 'true')
+    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == ${{ env.REPO_NAME }}) && (github.event_name == 'merge_group' || needs.run_checker.outputs.run_docker == 'true')
     runs-on: depot-ubuntu-24.04-8
     steps:
       - uses: actions/checkout@v4
@@ -292,7 +295,7 @@ jobs:
 
   ibc-timeout-refund:
     needs: [ run_checker, composer, conductor, sequencer, sequencer-relayer, evm-bridge-withdrawer, cli ]
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == 'astriaorg/astria') && (github.event_name == 'merge_group' || needs.run_checker.outputs.run_docker == 'true')
+    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == ${{ env.REPO_NAME }}) && (github.event_name == 'merge_group' || needs.run_checker.outputs.run_docker == 'true')
     runs-on: depot-ubuntu-24.04-8
     steps:
       - uses: actions/checkout@v4
