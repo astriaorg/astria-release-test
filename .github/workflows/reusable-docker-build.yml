@@ -54,6 +54,16 @@ jobs:
         with:
           ref: ${{ inputs.tag }}
           submodules: 'true'
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
+      - name: Dump event context
+        env:
+          EVENT_CONTEXT: ${{ toJSON(github.event) }}
+        run: echo "$EVENT_CONTEXT"
+
       - uses: depot/setup-action@v1
       - name: Login to Docker Hub
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == ${{ env.REPO_NAME }}
