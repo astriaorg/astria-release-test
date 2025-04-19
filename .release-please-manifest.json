@@ -6,4 +6,4 @@
   "crates/astria-sequencer-relayer": "1.0.1",
   "crates/astria-bridge-withdrawer": "1.0.2",
   "crates/astria-auctioneer": "0.0.1"
-  }
+}
