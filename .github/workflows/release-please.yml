@@ -31,3 +31,24 @@ jobs:
             console.log('Releases Created:', '${{ steps.release.outputs.releases_created }}');
             console.log('Paths Released:', '${{ steps.release.outputs.paths_released }}');
             console.log('PRs Created:', '${{ steps.release.outputs.prs }}');
+      - name: Install yq
+        run: |
+          wget https://github.com/mikefarah/yq/releases/download/v4.25.1/yq_linux_amd64 -O /usr/local/bin/yq
+          chmod +x /usr/local/bin/yq
+      - name: Sync sequencer chart tag with crate version
+        if: ${{ steps.release.outputs.releases_created }}
+        run: |
+          if [[ "${{ steps.release.outputs.paths_released }}" == *"crates/astria-sequencer"* ]]; then
+            SEQUENCER_VERSION=$(grep -m 1 "crates/astria-sequencer" .release-please-manifest.json | sed 's/.*: "\(.*\)",/\1/')
+            echo "Updating charts/sequencer/values.yaml with sequencer version: $SEQUENCER_VERSION"
+            # Using yq to update the YAML file
+            yq -i '.image.tag = "'$SEQUENCER_VERSION'"' charts/sequencer/values.yaml
+
+            # Commit and push the change
+            echo "chore: update sequencer chart image tag to $SEQUENCER_VERSION"
+            # git config user.name github-actions
+            # git config user.email github-actions@github.com
+            # git add charts/sequencer/values.yaml
+            # git commit -m "chore: update sequencer chart image tag to $SEQUENCER_VERSION"
+            # git push
+          fi
