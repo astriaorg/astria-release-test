@@ -105,6 +105,9 @@ jobs:
         with:
           # INFRA-MAR-25: Modify package name to include image suffix if exists
           images: ${{ format('{0}/{1}/{2}', env.REGISTRY, env.REPO_ORG, env.PACKAGE_NAME) }}
+          flavor: |
+            # Turn off auto-tagging for latest and do it manually below in tags
+            latest=false
           tags: |
             # PR builds tag with pr-num AND set the actual commit SHA from the PR head instead of from the PR merge commit (alternatively, we could checkout the PR head in actions/checkout)
             type=ref,event=pr
