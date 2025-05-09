@@ -63,8 +63,6 @@ jobs:
         env:
           EVENT_CONTEXT: ${{ toJSON(github.event) }}
         run: echo "$EVENT_CONTEXT"
-      - uses: benjlevesque/short-sha@v3.0
-        id: short-sha
       - name: Filter input tag
         id: filter_input_tag
         if: inputs.tag != ''
@@ -82,6 +80,8 @@ jobs:
             echo "Using tag as is: $TAG"
           fi
 
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          echo "short_sha=$SHORT_SHA" >> $GITHUB_OUTPUT
           echo "clean_tag=$CLEAN_TAG" >> $GITHUB_OUTPUT
 
       - uses: depot/setup-action@v1
@@ -112,14 +112,15 @@ jobs:
 
             # Main branch builds: latest and main-sha
             type=raw,value=latest,enable=${{ env.FULL_REF == format('refs/heads/{0}', 'main') }}
-            type=raw,value=main-sha-${{ steps.short-sha.outputs.sha }},enable=${{ env.FULL_REF == format('refs/heads/{0}', 'main') }}
+            type=raw,value=sha-${{ github.sha }},enable=${{ env.FULL_REF == format('refs/heads/{0}', 'main') }}
+            type=raw,value=main-${{ steps.filter_input_tag.outputs.short_sha }},enable=${{ env.FULL_REF == format('refs/heads/{0}', 'main') }}
 
             # Release builds. Semver and match with version
             type=match,pattern=refs/tags/${{ inputs.binary-name }}-v(.*),group=1,enable=${{ startsWith(env.FULL_REF, 'refs/tags/') }},value=${{ env.FULL_REF }}
-            type=semver,pattern={{version}}-${{ steps.short-sha.outputs.sha }},enable=${{ startsWith(env.FULL_REF, 'refs/tags/') && contains(env.FULL_REF, '-v') }}
+            type=semver,pattern={{version}}-${{ steps.filter_input_tag.outputs.short_sha }},enable=${{ startsWith(env.FULL_REF, 'refs/tags/') && contains(env.FULL_REF, '-v') }}
 
             # Support direct version input via inputs.tag
-            type=raw,value=${{ steps.filter_input_tag.outputs.clean_tag }}-${{ steps.short-sha.outputs.sha }},enable=${{ inputs.tag != '' && !startsWith(inputs.tag, 'refs/')}}
+            type=raw,value=${{ steps.filter_input_tag.outputs.clean_tag }}-${{ steps.filter_input_tag.outputs.short_sha }},enable=${{ inputs.tag != '' && !startsWith(inputs.tag, 'refs/')}}
 
       - name: Build and push
         uses: depot/build-push-action@v1
