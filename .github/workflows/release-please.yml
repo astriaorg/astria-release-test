@@ -16,7 +16,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     needs: run_checker
-    if: ${{ needs.run_checker.outputs.release_workflow == 'true' }}
+    if: ${{ needs.run_checker.outputs.run_release_services == 'true' }}
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       paths_released: ${{ steps.release.outputs.paths_released }}
