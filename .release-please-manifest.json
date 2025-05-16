@@ -1,26 +1,135 @@
 {
-  "crates/astria-auctioneer": "0.0.1",
-  "crates/astria-bridge-withdrawer": "1.0.2",
-  "crates/astria-cli": "0.6.0",
-  "crates/astria-composer": "1.0.1",
-  "crates/astria-conductor": "2.0.0-rc.1",
-  "crates/astria-sequencer": "3.0.0-rc.1",
-  "crates/astria-sequencer-relayer": "1.0.1",
-  "charts/astrotrek": "0.0.1",
-  "charts/auctioneer": "0.0.2",
-  "charts/celestia-local": "0.7.2",
-  "charts/celestia-node": "0.4.0",
-  "charts/composer": "1.0.2",
-  "charts/evm-bridge-withdrawer": "1.0.4",
-  "charts/evm-faucet": "0.1.4",
-  "charts/evm-rollup": "1.2.4",
-  "charts/evm-stack": "1.2.0",
-  "charts/external-ingress": "0.1.1",
-  "charts/flame-rollup": "0.1.2",
-  "charts/graph-node": "0.2.1",
-  "charts/hermes": "0.7.0",
-  "charts/hyperlane-agents": "0.1.3",
-  "charts/sequencer": "2.1.1",
-  "charts/sequencer-faucet": "0.9.1",
-  "charts/sequencer-relayer": "1.0.5"
+    "packages": {
+        "crates/astria-cli": {
+            "component": "cli",
+            "release-type": "rust",
+            "tag-separator": "-v",
+            "package-name": "astria-cli",
+            "changelog-path": "CHANGELOG.md",
+            "bump-minor-pre-major": true,
+            "bump-patch-for-minor-pre-major": true
+        },
+        "crates/astria-conductor": {
+            "component": "conductor",
+            "release-type": "rust",
+            "tag-separator": "-v",
+            "package-name": "astria-conductor",
+            "changelog-path": "CHANGELOG.md",
+            "bump-minor-pre-major": true,
+            "bump-patch-for-minor-pre-major": true
+        },
+        "crates/astria-composer": {
+            "component": "composer",
+            "release-type": "rust",
+            "tag-separator": "-v",
+            "package-name": "astria-composer",
+            "changelog-path": "CHANGELOG.md",
+            "bump-minor-pre-major": true,
+            "bump-patch-for-minor-pre-major": true
+        },
+        "crates/astria-sequencer": {
+            "component": "sequencer",
+            "release-type": "rust",
+            "tag-separator": "-v",
+            "package-name": "astria-sequencer",
+            "changelog-path": "CHANGELOG.md",
+            "bump-minor-pre-major": true,
+            "bump-patch-for-minor-pre-major": true
+        },
+        "crates/astria-sequencer-relayer": {
+            "component": "sequencer-relayer",
+            "release-type": "rust",
+            "tag-separator": "-v",
+            "package-name": "astria-sequencer-relayer",
+            "changelog-path": "CHANGELOG.md",
+            "bump-minor-pre-major": true,
+            "bump-patch-for-minor-pre-major": true
+        },
+        "crates/astria-bridge-withdrawer": {
+            "component": "bridge-withdrawer",
+            "release-type": "rust",
+            "tag-separator": "-v",
+            "package-name": "astria-bridge-withdrawer",
+            "changelog-path": "CHANGELOG.md",
+            "bump-minor-pre-major": true,
+            "bump-patch-for-minor-pre-major": true
+        },
+        "crates/astria-auctioneer": {
+            "component": "auctioneer",
+            "release-type": "rust",
+            "tag-separator": "-v",
+            "package-name": "astria-auctioneer",
+            "changelog-path": "CHANGELOG.md",
+            "bump-minor-pre-major": true,
+            "bump-patch-for-minor-pre-major": true
+        },
+        "charts/sequencer": {
+            "component": "sequencer-chart",
+            "release-type": "helm",
+            "tag-separator": "-v",
+            "package-name": "sequencer-chart",
+            "changelog-path": "charts/sequencer/CHANGELOG.md",
+            "bump-minor-pre-major": true,
+            "bump-patch-for-minor-pre-major": true,
+            "extra-files": [
+              {
+                "type": "yaml",
+                "path": "charts/sequencer/values.yaml",
+                "jsonpath": "$.images.sequencer.tag"
+              }
+            ]
+        }
+    },
+    "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+    "plugins": [
+        "cargo-workspace",
+        {
+            "type": "linked-versions",
+            "groupName": "sequencer-components",
+            "components": ["sequencer", "sequencer-chart"]
+        }
+    ],
+    "bump-minor-pre-major": true,
+    "bump-patch-for-minor-pre-major": true,
+    "release-type": "rust",
+    "include-component-in-tag": true,
+    "tag-separator": "-v",
+    "changelog-sections": [
+        {
+            "type": "feat",
+            "section": "Features",
+            "hidden": false
+        },
+        {
+            "type": "fix",
+            "section": "Bug Fixes",
+            "hidden": false
+        },
+        {
+            "type": "chore",
+            "section": "Miscellaneous",
+            "hidden": false
+        },
+        {
+            "type": "refactor",
+            "section": "Code Refactoring",
+            "hidden": false
+        },
+        {
+            "type": "docs",
+            "section": "Documentation",
+            "hidden": false
+        },
+        {
+            "type": "perf",
+            "section": "Performance Improvements",
+            "hidden": false
+        },
+        {
+            "type": "test",
+            "section": "Tests",
+            "hidden": false
+        }
+    ],
+    "separate-pull-requests": false
 }
