@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - aajimal/release-plz-v2-charts  # TODO: Remove this once we have a proper release branch
 
 permissions:
   contents: write
