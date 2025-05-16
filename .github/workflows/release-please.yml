@@ -48,7 +48,6 @@ jobs:
             console.log('PRs Created:', '${{ steps.release.outputs.prs }}');
   ## The following jobs are copied from release.yml
   ## and are used to release the proto and charts.
-  ## They are kept here for reference and in case we need to
   proto:
     runs-on: ubuntu-latest
     environment: BUF
@@ -80,9 +79,10 @@ jobs:
       - name: "Skip BUF Upload (Temporarily Disabled)"
         run: echo "BUF token upload temporarily disabled"
 
-  # Add charts job from release-test.yml if needed
+  # Add charts job from release.yml
   charts:
     env:
+      REPO_NAME: astriaorg/astria-release-test
       CHARTS_REPO: astriaorg/charts-release-test
     permissions:
       contents: write
