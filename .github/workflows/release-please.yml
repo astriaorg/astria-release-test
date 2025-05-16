@@ -55,7 +55,7 @@ jobs:
     if: |
       github.event_name != 'merge_group' &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false) &&
-      needs.run_checker.outputs.run_release_proto == 'true'
+      ${{ needs.run_checker.outputs.run_release_proto }} == 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: bufbuild/buf-setup-action@v1
