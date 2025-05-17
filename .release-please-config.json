@@ -44,6 +44,11 @@
       "release-type": "rust",
       "component": "auctioneer",
       "package-name": "astria-auctioneer"
+    },
+    "charts/sequencer": {
+      "release-type": "helm",
+      "component": "sequencer",
+      "package-name": "sequencer"
     }
   }
 }
