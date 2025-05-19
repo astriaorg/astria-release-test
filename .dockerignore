@@ -1,7 +1,13 @@
 target/
 
-
 # jetbrains
 .idea
 # direnv
 .envrc
+
+# git
+.git
+.gitignore
+.gitmodules
+.gitattributes
+.github
