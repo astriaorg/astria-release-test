@@ -1,5 +1,5 @@
 {
   "crates/astria-cli": "0.6.2",
-  "crates/astria-sequencer": "3.0.0-rc.1",
+  "crates/astria-sequencer": "3.1.0-rc.1",
   "charts/sequencer": "2.2.3"
 }
