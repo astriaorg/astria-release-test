@@ -122,9 +122,9 @@ jobs:
       - name: Debug Tag Reference
         run: |
           echo "FULL_REF: ${{ env.FULL_REF }}"
-          echo "startsWith check: ${{ startsWith(env.FULL_REF, 'refs/tags/') }}"
-          echo "contains check: ${{ contains(env.FULL_REF, '-v') }}"
-          echo "Combined condition: ${{ startsWith(env.FULL_REF, 'refs/tags/') && contains(env.FULL_REF, '-v') }}"
+          echo "startsWith refs/tags/ ?: ${{ startsWith(env.FULL_REF, 'refs/tags/') }}"
+          echo "contains check (-v): ${{ contains(env.FULL_REF, '-v') }}"
+          echo "Combined condition (refs/tags/ && -v): ${{ startsWith(env.FULL_REF, 'refs/tags/') && contains(env.FULL_REF, '-v') }}"
 
       - name: Build and push
         uses: depot/build-push-action@v1
