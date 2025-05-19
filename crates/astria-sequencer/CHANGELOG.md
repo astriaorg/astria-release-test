@@ -7,6 +7,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0-rc.1](https://github.com/astriaorg/astria-release-test/compare/sequencer-v3.0.0-rc.1...sequencer-v3.1.0-rc.1) (2025-05-19)
+
+
+### Features
+
+* **sequencer:** add Helm chart for sequencer deployment ([f288e11](https://github.com/astriaorg/astria-release-test/commit/f288e11d65774b93ff0abc6759ac7b158fb79d09))
+
+
+### Bug Fixes
+
+* **sequencer:** added more comments ([#41](https://github.com/astriaorg/astria-release-test/issues/41)) ([3782846](https://github.com/astriaorg/astria-release-test/commit/3782846d58104188a128fc7dc2dc3c25991aa34c))
+
 ## [Unreleased]
 
 ### Added
