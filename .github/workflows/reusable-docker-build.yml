@@ -39,8 +39,11 @@ on:
 env:
   REPO_ORG: astriaorg
   REGISTRY: ghcr.io
-  # FULL_REF is either the full ref of the branch or tag e.g. refs/heads/main or refs/tags/v0.1.0
-  FULL_REF: ${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.ref }}
+  # FULL_REF is (in order of precedence):
+  # - the full ref of the tag if the tag is provided
+  # - the full ref of the branch or tag e.g. refs/heads/main or refs/tags/v0.1.0
+  # - the full ref of the branch if the tag is not provided
+  FULL_REF: ${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || startsWith(github.ref, 'refs/tags/') && github.ref || github.ref }}
   FULL_BINARY_NAME: ${{ inputs.binary-prefix }}-${{ inputs.binary-name }}
   # INFRA-MAR-25: Modify package name to include image suffix if exists
   PACKAGE_NAME: ${{ inputs.package-name }}${{ inputs.image-suffix != '' && format('-{0}', inputs.image-suffix) || '' }}
@@ -59,7 +62,6 @@ jobs:
           ref: ${{ inputs.tag }}
           submodules: 'true'
       - name: Dump GitHub context
-        if: inputs.debug
         env:
           GITHUB_CONTEXT: ${{ toJSON(github) }}
         run: echo "$GITHUB_CONTEXT"
