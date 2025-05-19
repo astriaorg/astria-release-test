@@ -6,27 +6,127 @@
   "separate-pull-requests": true,
   "always-update": true,
   "packages": {
-    "crates/astria-cli": {
+    "crates/astria-account-monitor": {
+      "release-type": "rust",
+      "component": "account-monitor",
+      "package-name": "astria-account-monitor",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "/charts/account-monitor/Chart.yaml",
+          "jsonpath": "$.appVersion"
+        }
+      ]
+    },
+    "crates/astria-auctioneer": {
+      "release-type": "rust",
+      "component": "auctioneer",
+      "package-name": "astria-auctioneer",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "/charts/auctioneer/Chart.yaml",
+          "jsonpath": "$.appVersion"
+        }
+      ]
+    },
+    "crates/astria-bridge-contracts": {
+      "release-type": "rust",
+      "component": "bridge-contracts",
+      "package-name": "astria-bridge-contracts"
+    },
+      "crates/astria-bridge-withdrawer": {
+      "release-type": "rust",
+      "component": "bridge-withdrawer",
+      "package-name": "astria-bridge-withdrawer",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "/charts/evm-bridge-withdrawer/Chart.yaml",
+          "jsonpath": "$.appVersion"
+        }
+      ]
+    },
+      "crates/astria-build-info": {
+      "release-type": "rust",
+      "component": "build-info",
+      "package-name": "astria-build-info"
+    },
+      "crates/astria-cli": {
       "release-type": "rust",
       "component": "cli",
       "package-name": "astria-cli"
     },
-    "crates/astria-account-monitor": {
+      "crates/astria-composer": {
       "release-type": "rust",
-      "component": "account-monitor",
-      "package-name": "astria-account-monitor"
+      "component": "composer",
+      "package-name": "astria-composer",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "/charts/composer/Chart.yaml",
+          "jsonpath": "$.appVersion"
+        }
+      ]
     },
-    "crates/astria-conductor": {
+      "crates/astria-conductor": {
       "release-type": "rust",
       "component": "conductor",
       "package-name": "astria-conductor"
     },
-    "crates/astria-composer": {
+
+      "crates/astria-config": {
       "release-type": "rust",
-      "component": "composer",
-      "package-name": "astria-composer"
+      "component": "config",
+      "package-name": "astria-config"
     },
-    "crates/astria-sequencer": {
+
+      "crates/astria-core": {
+      "release-type": "rust",
+      "component": "core",
+      "package-name": "astria-core"
+    },
+      "crates/astria-core-address": {
+      "release-type": "rust",
+      "component": "core-address",
+      "package-name": "astria-core-address"
+    },
+      "crates/astria-core-consts": {
+      "release-type": "rust",
+      "component": "core-consts",
+      "package-name": "astria-core-consts"
+    },
+      "crates/astria-core-crypto": {
+      "release-type": "rust",
+      "component": "core-crypto",
+      "package-name": "astria-core-crypto"
+    },
+      "crates/astria-eyre": {
+      "release-type": "rust",
+      "component": "eyre",
+      "package-name": "astria-eyre"
+    },
+      "crates/astria-grpc-mock": {
+      "release-type": "rust",
+      "component": "grpc-mock",
+      "package-name": "astria-grpc-mock"
+    },
+      "crates/astria-grpc-mock-test": {
+      "release-type": "rust",
+      "component": "grpc-mock-test",
+      "package-name": "astria-grpc-mock-test"
+    },
+      "crates/astria-grpc-mock-test-codegen": {
+      "release-type": "rust",
+      "component": "grpc-mock-test-codegen",
+      "package-name": "astria-grpc-mock-test-codegen"
+    },
+      "crates/astria-merkle": {
+      "release-type": "rust",
+      "component": "merkle",
+      "package-name": "astria-merkle"
+    },
+      "crates/astria-sequencer": {
       "release-type": "rust",
       "component": "sequencer",
       "package-name": "astria-sequencer",
@@ -38,25 +138,127 @@
         }
       ]
     },
-    "crates/astria-sequencer-relayer": {
+      "crates/astria-sequencer-client": {
+      "release-type": "rust",
+      "component": "sequencer-client",
+      "package-name": "astria-sequencer-client"
+    },
+      "crates/astria-sequencer-relayer": {
       "release-type": "rust",
       "component": "sequencer-relayer",
-      "package-name": "astria-sequencer-relayer"
+      "package-name": "astria-sequencer-relayer",
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "/charts/sequencer-relayer/Chart.yaml",
+          "jsonpath": "$.appVersion"
+        }
+      ]
     },
-    "crates/astria-bridge-withdrawer": {
+      "crates/astria-sequencer-utils": {
       "release-type": "rust",
-      "component": "bridge-withdrawer",
-      "package-name": "astria-bridge-withdrawer"
+      "component": "sequencer-utils",
+      "package-name": "astria-sequencer-utils"
     },
-    "crates/astria-auctioneer": {
+      "crates/astria-telemetry": {
       "release-type": "rust",
+      "component": "telemetry",
+      "package-name": "astria-telemetry"
+    },
+      "crates/astria-test-utils": {
+      "release-type": "rust",
+      "component": "test-utils",
+      "package-name": "astria-test-utils"
+    },
+    "charts/account-monitor": {
+      "release-type": "helm",
+      "component": "account-monitor",
+      "package-name": "account-monitor"
+    },
+    "charts/astrotrek": {
+      "release-type": "helm",
+      "component": "astrotrek",
+      "package-name": "astrotrek"
+    },
+    "charts/auctioneer": {
+      "release-type": "helm",
       "component": "auctioneer",
-      "package-name": "astria-auctioneer"
+      "package-name": "auctioneer"
+    },
+    "charts/celestia-local": {
+      "release-type": "helm",
+      "component": "celestia-local",
+      "package-name": "celestia-local"
+    },
+    "charts/celestia-node": {
+      "release-type": "helm",
+      "component": "celestia-node",
+      "package-name": "celestia-node"
+    },
+    "charts/composer": {
+      "release-type": "helm",
+      "component": "composer",
+      "package-name": "composer"
+    },
+    "charts/evm-bridge-withdrawer": {
+      "release-type": "helm",
+      "component": "evm-bridge-withdrawer",
+      "package-name": "evm-bridge-withdrawer"
+    },
+    "charts/evm-faucet": {
+      "release-type": "helm",
+      "component": "evm-faucet",
+      "package-name": "evm-faucet"
+    },
+    "charts/evm-rollup": {
+      "release-type": "helm",
+      "component": "evm-rollup",
+      "package-name": "evm-rollup"
+    },
+    "charts/evm-stack": {
+      "release-type": "helm",
+      "component": "evm-stack",
+      "package-name": "evm-stack"
+    },
+    "charts/external-ingress": {
+      "release-type": "helm",
+      "component": "external-ingress",
+      "package-name": "external-ingress"
+    },
+    "charts/flame-rollup": {
+      "release-type": "helm",
+      "component": "flame-rollup",
+      "package-name": "flame-rollup"
+    },
+    "charts/graph-node": {
+      "release-type": "helm",
+      "component": "graph-node",
+      "package-name": "graph-node"
+    },
+    "charts/hermes": {
+      "release-type": "helm",
+      "component": "hermes",
+      "package-name": "hermes"
+    },
+    "charts/hyperlane-agents": {
+      "release-type": "helm",
+      "component": "hyperlane-agents",
+      "package-name": "hyperlane-agents"
     },
     "charts/sequencer": {
       "release-type": "helm",
       "component": "sequencer",
       "package-name": "sequencer"
+    },
+    "charts/sequencer-faucet": {
+      "release-type": "helm",
+      "component": "sequencer-faucet",
+      "package-name": "sequencer-faucet"
+    },
+    "charts/sequencer-relayer": {
+      "release-type": "helm",
+      "component": "sequencer-relayer",
+      "package-name": "sequencer-relayer"
     }
   }
 }
