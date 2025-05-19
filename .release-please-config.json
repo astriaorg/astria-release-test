@@ -33,7 +33,7 @@
       "extra-files": [
         {
           "type": "yaml",
-          "path": "charts/sequencer/Chart.yaml",
+          "path": "/charts/sequencer/Chart.yaml",
           "jsonpath": "$.appVersion"
         }
       ]
