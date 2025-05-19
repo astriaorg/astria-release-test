@@ -29,15 +29,13 @@
       "release-type": "rust",
       "component": "sequencer",
       "package-name": "astria-sequencer",
-        "additionalProperties": {
-          "extra-files": [
-            {
-              "type": "yaml",
-              "path": "charts/sequencer/Chart.yaml",
-              "jsonpath": "$.appVersion"
-            }
-        ]
+      "extra-files": [
+        {
+          "type": "yaml",
+          "path": "charts/sequencer/Chart.yaml",
+          "jsonpath": "$.appVersion"
         }
+      ]
     },
     "crates/astria-sequencer-relayer": {
       "release-type": "rust",
