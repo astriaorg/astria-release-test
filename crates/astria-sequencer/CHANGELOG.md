@@ -7,6 +7,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.1-rc.1](https://github.com/astriaorg/astria-release-test/compare/sequencer-v3.0.0-rc.1...sequencer-v3.0.1-rc.1) (2025-05-19)
+
+
+### Bug Fixes
+
+* **release-please:** Adding symlink to charts from crates/astria-sequencer/charts ([abe53b7](https://github.com/astriaorg/astria-release-test/commit/abe53b7dd56c082acab4b042b2deb37b5bc355d0))
+* **sequencer:** added more comments ([#41](https://github.com/astriaorg/astria-release-test/issues/41)) ([3782846](https://github.com/astriaorg/astria-release-test/commit/3782846d58104188a128fc7dc2dc3c25991aa34c))
+
 ## [Unreleased]
 
 ### Added
