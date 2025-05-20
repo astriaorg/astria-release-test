@@ -3,7 +3,7 @@ name: sequencer
 description: A Helm chart for deploying a k8s node of Astria Sequencer
 type: application
 version: 2.2.3
-appVersion: 3.1.0-rc.1
+appVersion: 3.1.1-rc.1
 dependencies:
   - name: sequencer-relayer
     version: 1.0.5
