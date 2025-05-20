@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      debug_only:
+        description: 'Run only debug step (testing purposes)'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -16,7 +23,7 @@ jobs:
   release-please:
     runs-on: ubuntu-latest
     needs: run_checker
-    if: ${{ needs.run_checker.outputs.run_release_services == 'true' }}
+    if: ${{ inputs.debug_only == false && (needs.run_checker.outputs.run_release_services == 'true') }}
     outputs:
       releases_created: ${{ steps.release.outputs.releases_created }}
       paths_released: ${{ steps.release.outputs.paths_released }}
@@ -46,6 +53,73 @@ jobs:
             console.log('Releases Created:', '${{ steps.release.outputs.releases_created }}');
             console.log('Paths Released:', '${{ steps.release.outputs.paths_released }}');
             console.log('PRs Created:', '${{ steps.release.outputs.prs }}');
+
+      - name: Trigger Docker builds for released components
+        if: ${{ steps.release.outputs.releases_created == 'true' }}
+        run: |
+          # Configure git
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+          # Extract the paths that got released
+          PATHS_RELEASED='${{ steps.release.outputs.paths_released }}'
+          echo "Paths released: $PATHS_RELEASED"
+
+          # For each released path
+          echo "$PATHS_RELEASED" | jq -r 'keys[]' | while read -r path; do
+            # Get the tag from the release data
+            TAG=$(echo "$PATHS_RELEASED" | jq -r ".\"$path\".tag_name")
+            if [[ -n "$TAG" ]]; then
+              echo "Processing tag: $TAG"
+
+              # Fetch all tags to ensure we have the latest
+              git fetch --tags
+
+              # Verify the tag exists
+              if git rev-parse "$TAG" >/dev/null 2>&1; then
+                echo "Tag $TAG exists, pushing tag reference to trigger workflows"
+                # Push the tag - this will trigger the tag workflows
+                git push origin "refs/tags/$TAG" --force
+              else
+                echo "Tag $TAG doesn't exist locally, skipping"
+              fi
+            fi
+          done
+
+  # Debug job for testing
+  debug-test:
+    runs-on: ubuntu-latest
+    if: ${{ inputs.debug_only == true }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Test tag push for docker workflow
+        run: |
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+
+          # Create a test tag for composer (just an example)
+          TEST_TAG="composer-v1.0.2"
+
+          # Check if the tag already exists
+          if git rev-parse "$TEST_TAG" >/dev/null 2>&1; then
+            echo "Tag $TEST_TAG already exists, updating it"
+            # Delete the tag if it exists
+            git tag -d "$TEST_TAG"
+            git push --delete origin "$TEST_TAG" || true
+          fi
+
+          # Create new tag
+          git tag "$TEST_TAG"
+
+          # Push the tag to trigger the workflow
+          git push origin "$TEST_TAG"
+
+          echo "Test tag $TEST_TAG pushed successfully"
+
   ## The following jobs are copied from release.yml
   ## and are used to release the proto and charts.
   proto:
@@ -53,6 +127,7 @@ jobs:
     environment: BUF
     needs: run_checker
     if: |
+      inputs.debug_only != true &&
       github.event_name != 'merge_group' &&
       (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false) &&
       ${{ needs.run_checker.outputs.run_release_proto }} == 'true'
@@ -88,7 +163,11 @@ jobs:
       contents: write
     runs-on: ubuntu-latest
     needs: release-please
-    if: github.ref_name == 'main' && needs.release-please.outputs.releases_created == 'true' && needs.run_checker.outputs.run_release_charts == 'true'
+    if: |
+      inputs.debug_only != true &&
+      github.ref_name == 'main' &&
+      needs.release-please.outputs.releases_created == 'true' &&
+      needs.run_checker.outputs.run_release_charts == 'true'
     steps:
       - name: Checkout Mono Repo
         uses: actions/checkout@v4
