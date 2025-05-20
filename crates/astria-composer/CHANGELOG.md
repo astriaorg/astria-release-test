@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2](https://github.com/astriaorg/astria-release-test/compare/composer-v1.0.1...composer-v1.0.2) (2025-05-20)
+
+
+### Bug Fixes
+
+* **composer:** bump version to 1.0.2-rc.1 in Cargo.toml and improve unsubscribe warning message in geth.rs ([a298ec5](https://github.com/astriaorg/astria-release-test/commit/a298ec5c52d3350d564da9223fec9946482bdf66))
+
 ## [Unreleased]
 
 ### Changed
