@@ -2,6 +2,7 @@
 //! ```sh
 //! cargo bench --features=benchmark -qp astria-sequencer app
 //! ```
+///
 
 use std::time::Duration;
 
