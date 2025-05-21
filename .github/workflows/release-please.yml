@@ -57,33 +57,13 @@ jobs:
       - name: Trigger Docker builds for released components
         if: ${{ steps.release.outputs.releases_created == 'true' }}
         run: |
-          # Configure git
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
-
-          # Extract the paths that got released
-          PATHS_RELEASED='${{ steps.release.outputs.paths_released }}'
-          echo "Paths released: $PATHS_RELEASED"
-
-          # For each released path
-          echo "$PATHS_RELEASED" | jq -r 'keys[]' | while read -r path; do
-            # Get the tag from the release data
-            TAG=$(echo "$PATHS_RELEASED" | jq -r ".\"$path\".tag_name")
-            if [[ -n "$TAG" ]]; then
-              echo "Processing tag: $TAG"
-
-              # Fetch all tags to ensure we have the latest
-              git fetch --tags
-
-              # Verify the tag exists
-              if git rev-parse "$TAG" >/dev/null 2>&1; then
-                echo "Tag $TAG exists, pushing tag reference to trigger workflows"
-                # Push the tag - this will trigger the tag workflows
-                git push origin "refs/tags/$TAG" --force
-              else
-                echo "Tag $TAG doesn't exist locally, skipping"
-              fi
-            fi
+          git fetch --tags
+          # Get all tags pointing at HEAD and push them to origin
+          for tag in $(git tag --points-at HEAD); do
+            echo "Pushing tag $tag to origin"
+            git push origin "refs/tags/$tag"
           done
 
   # Debug job for testing
