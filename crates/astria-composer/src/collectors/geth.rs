@@ -339,7 +339,7 @@ async fn unsubscribe_from_rollup(tx_stream: &Provider<Ws>, subscription_id: &U25
     .await
     {
         Ok(Ok(true)) => info!("unsubscribed from geth tx stream"),
-        Ok(Ok(false)) => warn!("geth responded to unsubscribe request but returned `false`. This is not expected."),
+        Ok(Ok(false)) => warn!("geth responded to unsubscribe request but returned `false`"),
         Ok(Err(err)) => {
             error!(error = %Report::new(err), "failed unsubscribing from the geth tx stream");
         }

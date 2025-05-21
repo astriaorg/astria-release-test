@@ -5,30 +5,19 @@
   "include-v-in-tag": true,
   "separate-pull-requests": true,
   "always-update": true,
+  "draft": true,
+  "plugins": ["cargo-workspace"],
+  "release-type": "rust",
   "packages": {
     "crates/astria-account-monitor": {
       "release-type": "rust",
       "component": "account-monitor",
-      "package-name": "astria-account-monitor",
-      "extra-files": [
-        {
-          "type": "yaml",
-          "path": "/charts/account-monitor/Chart.yaml",
-          "jsonpath": "$.appVersion"
-        }
-      ]
+      "package-name": "astria-account-monitor"
     },
     "crates/astria-auctioneer": {
       "release-type": "rust",
       "component": "auctioneer",
-      "package-name": "astria-auctioneer",
-      "extra-files": [
-        {
-          "type": "yaml",
-          "path": "/charts/auctioneer/Chart.yaml",
-          "jsonpath": "$.appVersion"
-        }
-      ]
+      "package-name": "astria-auctioneer"
     },
     "crates/astria-bridge-contracts": {
       "release-type": "rust",
@@ -38,14 +27,7 @@
       "crates/astria-bridge-withdrawer": {
       "release-type": "rust",
       "component": "bridge-withdrawer",
-      "package-name": "astria-bridge-withdrawer",
-      "extra-files": [
-        {
-          "type": "yaml",
-          "path": "/charts/evm-bridge-withdrawer/Chart.yaml",
-          "jsonpath": "$.appVersion"
-        }
-      ]
+      "package-name": "astria-bridge-withdrawer"
     },
       "crates/astria-build-info": {
       "release-type": "rust",
@@ -60,14 +42,7 @@
       "crates/astria-composer": {
       "release-type": "rust",
       "component": "composer",
-      "package-name": "astria-composer",
-      "extra-files": [
-        {
-          "type": "yaml",
-          "path": "/charts/composer/Chart.yaml",
-          "jsonpath": "$.appVersion"
-        }
-      ]
+      "package-name": "astria-composer"
     },
       "crates/astria-conductor": {
       "release-type": "rust",
@@ -129,14 +104,7 @@
       "crates/astria-sequencer": {
       "release-type": "rust",
       "component": "sequencer",
-      "package-name": "astria-sequencer",
-      "extra-files": [
-        {
-          "type": "yaml",
-          "path": "/charts/sequencer/Chart.yaml",
-          "jsonpath": "$.appVersion"
-        }
-      ]
+      "package-name": "astria-sequencer"
     },
       "crates/astria-sequencer-client": {
       "release-type": "rust",
@@ -146,14 +114,7 @@
       "crates/astria-sequencer-relayer": {
       "release-type": "rust",
       "component": "sequencer-relayer",
-      "package-name": "astria-sequencer-relayer",
-      "extra-files": [
-        {
-          "type": "yaml",
-          "path": "/charts/sequencer-relayer/Chart.yaml",
-          "jsonpath": "$.appVersion"
-        }
-      ]
+      "package-name": "astria-sequencer-relayer"
     },
       "crates/astria-sequencer-utils": {
       "release-type": "rust",

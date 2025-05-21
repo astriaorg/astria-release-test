@@ -34,4 +34,3 @@ mod tests {
         assert!(storage_version_by_height(42).starts_with(COMPONENT_PREFIX));
     }
 }
-///
