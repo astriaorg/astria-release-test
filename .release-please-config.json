@@ -1,11 +1,13 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
-  "release-search-depth": 10,
-  "commit-search-depth": 50,
+  "draft": true,
+  "always-update": true,
+  "group-pull-request-title-pattern": "chore: release ${branch}",
+  "release-search-depth": 1,
+  "commit-search-depth": 1 ,
+  "sequential-calls": true,
   "include-v-in-tag": true,
   "separate-pull-requests": false,
-  "always-update": true,
-  "draft": true,
   "packages": {
     "crates/astria-account-monitor": {
       "release-type": "rust",
@@ -47,13 +49,11 @@
       "component": "conductor",
       "package-name": "astria-conductor"
     },
-
       "crates/astria-config": {
       "release-type": "rust",
       "component": "config",
       "package-name": "astria-config"
     },
-
       "crates/astria-core": {
       "release-type": "rust",
       "component": "core",
