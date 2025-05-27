@@ -42,7 +42,7 @@ jobs:
           script: |
             console.log('Release Please Action Outputs:');
             console.log('---------------------------');
-            console.log('Release Outputs:', '${{ steps.release.outputs }}');
+            console.log('Release Outputs:', JSON.stringify(steps.release.outputs, null, 2));
             console.log('Releases Created:', '${{ steps.release.outputs.releases_created }}');
             console.log('Paths Released:', '${{ steps.release.outputs.paths_released }}');
             console.log('PRs Created:', '${{ steps.release.outputs.prs }}');
