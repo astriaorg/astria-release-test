@@ -26,6 +26,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Clean up stale release branches
+        run: |
+          # Delete any existing release-please branches
+          # TODO: Remove this once we have a better way to handle stale branches
+          git push origin --delete release-please--branches--main || true
+        continue-on-error: true
+
       - name: Run release-please
         id: release
         uses: googleapis/release-please-action@v4
