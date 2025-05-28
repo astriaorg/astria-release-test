@@ -61,7 +61,7 @@ brotli = ["dep:brotli"]
 unchecked-constructors = ["astria-core-address/unchecked-constructor"]
 
 [dev-dependencies]
-astria-core = { path = ".", features = ["serde"] }
+# astria-core = { path = ".", features = ["serde"] }
 insta = { workspace = true, features = ["json"] }
 rand = { workspace = true }
 tempfile = { workspace = true }
