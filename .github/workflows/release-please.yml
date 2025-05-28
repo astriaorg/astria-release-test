@@ -27,12 +27,14 @@ jobs:
           fetch-depth: 0
 
       - name: Clean up stale release branches
+        env:
+          RELEASE_PLEASE_BRANCH: release-please--branches--main
         run: |
-          # Delete any existing release-please branches
-          # TODO: Remove this once we have a better way to handle stale branches
-          git push origin --delete release-please--branches--main || true
-        continue-on-error: true
-
+          # Check if the release-please branch exists on remote and delete it
+          if git ls-remote --heads origin $RELEASE_PLEASE_BRANCH | grep -q $RELEASE_PLEASE_BRANCH; then
+            echo "Found stale release-please branch '$RELEASE_PLEASE_BRANCH', deleting it..."
+            git push origin --delete $RELEASE_PLEASE_BRANCH
+          fi
       - name: Run release-please
         id: release
         uses: googleapis/release-please-action@v4
