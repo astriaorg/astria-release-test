@@ -6,7 +6,7 @@
   "separate-pull-requests": false,
   "always-update": true,
   "draft": true,
-  "plugins": ["cargo-workspace"],
+  "plugins": [".github/release-please-plugins/cargo-workspace-no-self-deps.js"],
   "packages": {
     "crates/astria-account-monitor": {
       "release-type": "rust",
