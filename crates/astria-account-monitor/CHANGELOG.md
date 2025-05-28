@@ -1,6 +1,10 @@
+# Changelog
+
+## [0.1.1](https://github.com/astriaorg/astria-release-test/compare/account-monitor-v0.1.0...account-monitor-v0.1.1) (2025-05-28)
+
 <!-- markdownlint-disable no-duplicate-heading -->
 
-# Changelog
+## Changelog
 
 All notable changes to this project will be documented in this file.
 

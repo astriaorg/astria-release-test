@@ -7,6 +7,8 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3](https://github.com/astriaorg/astria-release-test/compare/cli-v0.6.2...cli-v0.6.3) (2025-05-28)
+
 ## [0.6.2](https://github.com/astriaorg/astria-release-test/compare/cli-v0.6.1...cli-v0.6.2) (2025-05-16)
 
 
