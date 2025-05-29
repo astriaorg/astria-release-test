@@ -5,7 +5,7 @@
   "crates/astria-bridge-withdrawer": "1.0.3",
   "crates/astria-build-info": "0.1.0",
   "crates/astria-cli": "0.6.3",
-  "crates/astria-composer": "1.0.4",
+  "crates/astria-composer": "1.0.5",
   "crates/astria-conductor": "2.0.1-rc.1",
   "crates/astria-config": "0.1.0",
   "crates/astria-core": "0.1.1",
