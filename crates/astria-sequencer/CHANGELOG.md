@@ -7,6 +7,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0-rc.1](https://github.com/astriaorg/astria-release-test/compare/sequencer-v3.1.2-rc.1...sequencer-v3.2.0-rc.1) (2025-05-29)
+
+
+### Features
+
+* **cli:** add documentation to main entry point ([98f84c3](https://github.com/astriaorg/astria-release-test/commit/98f84c39351282aebd656f6175f3b2a027caf127))
+* **composer:** improve main module documentation ([98f84c3](https://github.com/astriaorg/astria-release-test/commit/98f84c39351282aebd656f6175f3b2a027caf127))
+* **sequencer:** enhance main entry point documentation ([98f84c3](https://github.com/astriaorg/astria-release-test/commit/98f84c39351282aebd656f6175f3b2a027caf127))
+
 ## [3.1.2-rc.1](https://github.com/astriaorg/astria-release-test/compare/sequencer-v3.1.1-rc.1...sequencer-v3.1.2-rc.1) (2025-05-29)
 
 ## [3.1.1-rc.1](https://github.com/astriaorg/astria-release-test/compare/sequencer-v3.1.0-rc.1...sequencer-v3.1.1-rc.1) (2025-05-22)
