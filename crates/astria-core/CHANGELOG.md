@@ -1,6 +1,15 @@
+# Changelog
+
+## [0.1.1](https://github.com/astriaorg/astria-release-test/compare/core-v0.1.0...core-v0.1.1) (2025-05-29)
+
+
+### Bug Fixes
+
+* **astria-core:** bump version ([#66](https://github.com/astriaorg/astria-release-test/issues/66)) ([a160539](https://github.com/astriaorg/astria-release-test/commit/a160539fdfa3e9c8842663328ea1f756ed130fbd))
+
 <!-- markdownlint-disable no-duplicate-heading -->
 
-# Changelog
+## Changelog
 
 All notable changes to this project will be documented in this file.
 
