@@ -1,3 +1,6 @@
+//! Main entry point for the Astria Composer service.
+//! Handles transaction composition and batching for the Astria network.
+
 use std::process::ExitCode;
 
 use astria_composer::{
