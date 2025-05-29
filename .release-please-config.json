@@ -4,6 +4,10 @@
   "commit-search-depth": 50,
   "include-v-in-tag": true,
   "separate-pull-requests": false,
+  "group-pull-request-title-pattern": "chore(release-please): RELEASE-${branch}",
+  "pull-request-header": "### Release Version Details",
+  "pull-request-footer": "Note: Remember to publish the associated component releases and tags after merging this PR.",
+  "extra-label": "release,release-please,automated-pr,cargo-workspace",
   "always-update": true,
   "draft": true,
   "plugins": ["cargo-workspace"],
@@ -11,124 +15,148 @@
     "crates/astria-account-monitor": {
       "release-type": "rust",
       "component": "account-monitor",
-      "package-name": "astria-account-monitor"
+      "package-name": "astria-account-monitor",
+      "extra-label": "account-monitor"
     },
     "crates/astria-auctioneer": {
       "release-type": "rust",
       "component": "auctioneer",
-      "package-name": "astria-auctioneer"
+      "package-name": "astria-auctioneer",
+      "extra-label": "auctioneer"
     },
     "crates/astria-bridge-contracts": {
       "release-type": "rust",
       "component": "bridge-contracts",
-      "package-name": "astria-bridge-contracts"
+      "package-name": "astria-bridge-contracts",
+      "extra-label": "bridge-contracts"
     },
       "crates/astria-bridge-withdrawer": {
       "release-type": "rust",
       "component": "bridge-withdrawer",
-      "package-name": "astria-bridge-withdrawer"
+      "package-name": "astria-bridge-withdrawer",
+      "extra-label": "bridge-withdrawer"
     },
       "crates/astria-build-info": {
       "release-type": "rust",
       "component": "build-info",
-      "package-name": "astria-build-info"
+      "package-name": "astria-build-info",
+      "extra-label": "build-info"
     },
       "crates/astria-cli": {
       "release-type": "rust",
       "component": "cli",
-      "package-name": "astria-cli"
+      "package-name": "astria-cli",
+      "extra-label": "cli"
     },
       "crates/astria-composer": {
       "release-type": "rust",
       "component": "composer",
-      "package-name": "astria-composer"
+      "package-name": "astria-composer",
+      "extra-label": "composer"
     },
       "crates/astria-conductor": {
       "release-type": "rust",
       "component": "conductor",
-      "package-name": "astria-conductor"
+      "package-name": "astria-conductor",
+      "extra-label": "conductor"
     },
 
       "crates/astria-config": {
       "release-type": "rust",
       "component": "config",
-      "package-name": "astria-config"
+      "package-name": "astria-config",
+      "extra-label": "config"
     },
 
       "crates/astria-core": {
       "release-type": "rust",
       "component": "core",
-      "package-name": "astria-core"
+      "package-name": "astria-core",
+      "extra-label": "core"
     },
       "crates/astria-core-address": {
       "release-type": "rust",
       "component": "core-address",
-      "package-name": "astria-core-address"
+      "package-name": "astria-core-address",
+      "extra-label": "core-address"
     },
       "crates/astria-core-consts": {
       "release-type": "rust",
       "component": "core-consts",
-      "package-name": "astria-core-consts"
+      "package-name": "astria-core-consts",
+      "extra-label": "core-consts"
     },
       "crates/astria-core-crypto": {
       "release-type": "rust",
       "component": "core-crypto",
-      "package-name": "astria-core-crypto"
+      "package-name": "astria-core-crypto",
+      "extra-label": "core-crypto"
     },
       "crates/astria-eyre": {
       "release-type": "rust",
       "component": "eyre",
-      "package-name": "astria-eyre"
+      "package-name": "astria-eyre",
+      "extra-label": "eyre"
     },
       "crates/astria-grpc-mock": {
       "release-type": "rust",
       "component": "grpc-mock",
-      "package-name": "astria-grpc-mock"
+      "package-name": "astria-grpc-mock",
+      "extra-label": "grpc-mock"
     },
       "crates/astria-grpc-mock-test": {
       "release-type": "rust",
       "component": "grpc-mock-test",
-      "package-name": "astria-grpc-mock-test"
+      "package-name": "astria-grpc-mock-test",
+      "extra-label": "grpc-mock-test"
     },
       "crates/astria-grpc-mock-test-codegen": {
       "release-type": "rust",
       "component": "grpc-mock-test-codegen",
-      "package-name": "astria-grpc-mock-test-codegen"
+      "package-name": "astria-grpc-mock-test-codegen",
+      "extra-label": "grpc-mock-test-codegen"
     },
       "crates/astria-merkle": {
       "release-type": "rust",
       "component": "merkle",
-      "package-name": "astria-merkle"
+      "package-name": "astria-merkle",
+      "extra-label": "merkle"
     },
       "crates/astria-sequencer": {
       "release-type": "rust",
       "component": "sequencer",
-      "package-name": "astria-sequencer"
+      "package-name": "astria-sequencer",
+      "extra-label": "sequencer"
     },
       "crates/astria-sequencer-client": {
       "release-type": "rust",
       "component": "sequencer-client",
-      "package-name": "astria-sequencer-client"
+      "package-name": "astria-sequencer-client",
+      "extra-label": "sequencer-client"
     },
       "crates/astria-sequencer-relayer": {
       "release-type": "rust",
       "component": "sequencer-relayer",
-      "package-name": "astria-sequencer-relayer"
+      "package-name": "astria-sequencer-relayer",
+      "extra-label": "sequencer-relayer"
     },
       "crates/astria-sequencer-utils": {
       "release-type": "rust",
       "component": "sequencer-utils",
-      "package-name": "astria-sequencer-utils"
+      "package-name": "astria-sequencer-utils",
+      "extra-label": "sequencer-utils"
     },
       "crates/astria-telemetry": {
       "release-type": "rust",
       "component": "telemetry",
-      "package-name": "astria-telemetry"
+      "package-name": "astria-telemetry",
+      "extra-label": "telemetry"
     },
       "crates/astria-test-utils": {
       "release-type": "rust",
       "component": "test-utils",
-      "package-name": "astria-test-utils"
+      "package-name": "astria-test-utils",
+      "extra-label": "test-utils"
     },
     "charts/account-monitor": {
       "release-type": "helm",
