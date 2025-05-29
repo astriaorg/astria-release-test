@@ -1,5 +1,7 @@
 use std::process::ExitCode;
 
+// This comment line is intentionally very long to exceed the standard 80 character line length limit and test how the linter handles it
+
 use astria_composer::{
     Composer,
     Config,
