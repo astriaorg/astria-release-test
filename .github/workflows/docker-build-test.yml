@@ -39,6 +39,42 @@ on:
       - labeled
 
 jobs:
+  debug-workflow-trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug workflow trigger information
+        run: |
+          echo "=== DOCKER-BUILD-TEST WORKFLOW DEBUG ==="
+          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "GitHub Event: ${{ github.event_name }}"
+          echo "GitHub Ref: ${{ github.ref }}"
+          echo "GitHub Ref Name: ${{ github.ref_name }}"
+          echo "GitHub Ref Type: ${{ github.ref_type }}"
+          echo "GitHub SHA: ${{ github.sha }}"
+          echo "Workflow Run ID: ${{ github.run_id }}"
+          echo "Workflow Run Number: ${{ github.run_number }}"
+          echo "Triggered by: ${{ github.triggering_actor }}"
+          echo ""
+          echo "=== EVENT DETAILS ==="
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            echo "Push event detected"
+            echo "Pushed ref: ${{ github.ref }}"
+            if [[ "${{ github.ref_type }}" == "tag" ]]; then
+              echo "This is a TAG push event"
+              echo "Tag name: ${{ github.ref_name }}"
+            elif [[ "${{ github.ref_type }}" == "branch" ]]; then
+              echo "This is a BRANCH push event"
+              echo "Branch name: ${{ github.ref_name }}"
+            fi
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "Manual workflow dispatch detected"
+            echo "Target: ${{ inputs.target }}"
+            echo "Tag: ${{ inputs.tag }}"
+          else
+            echo "Other event type: ${{ github.event_name }}"
+          fi
+          echo "=== END DEBUG ==="
+
   run_checker:
     uses: ./.github/workflows/reusable-run-checker.yml
 
