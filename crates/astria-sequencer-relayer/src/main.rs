@@ -1,3 +1,5 @@
+//! Astria Sequencer Relayer - relays sequencer blocks to Celestia.
+
 use std::process::ExitCode;
 
 use astria_eyre::eyre::WrapErr as _;
@@ -16,6 +18,10 @@ use tracing::{
     warn,
 };
 
+/// Main entry point for the sequencer relayer service.
+///
+/// This service relays sequencer blocks from Astria to the Celestia data availability layer,
+/// ensuring data availability and persistence for rollup blocks.
 #[tokio::main]
 async fn main() -> ExitCode {
     astria_eyre::install().expect("astria eyre hook must be the first hook installed");
