@@ -43,10 +43,13 @@ jobs:
           RELEASE_BRANCH: release-please--branches--main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # TODO: This is a temporary fix to clean up the stale release-please branch.
+          # TODO: This is a temporary fix to clean up stale release-please branches.
           # We should find a better way to handle this.
-          # Check if the release-please branch exists and delete it if it does
-          if gh api repos/${{ github.repository }}/git/refs/heads/$RELEASE_BRANCH > /dev/null 2>&1; then
+          #
+          # Check if the exact release-please branch exists and delete it if it does
+          BRANCH_STATUS=$(gh api repos/${{ github.repository }}/git/refs/heads/$RELEASE_BRANCH 2>/dev/null | jq -r '.status')
+
+          if [ "$BRANCH_STATUS" != "404" ]; then
             echo "Found stale release-please branch '$RELEASE_BRANCH', deleting it..."
             gh api --method DELETE repos/${{ github.repository }}/git/refs/heads/$RELEASE_BRANCH
             echo "✓ Successfully deleted branch '$RELEASE_BRANCH'"
