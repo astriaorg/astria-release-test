@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.3](https://github.com/astriaorg/astria-release-test/compare/sequencer-relayer-v1.0.2...sequencer-relayer-v1.0.3) (2025-05-30)
+
+
+### Bug Fixes
+
+* **sequencer-relayer:** add service documentation for improved developer understanding ([#85](https://github.com/astriaorg/astria-release-test/issues/85)) ([f1b1e8d](https://github.com/astriaorg/astria-release-test/commit/f1b1e8d6daf564f9c2482aae0d2a116663a3ae82))
+
 ## [1.0.2](https://github.com/astriaorg/astria-release-test/compare/sequencer-relayer-v1.0.1...sequencer-relayer-v1.0.2) (2025-05-29)
 
 ## [Unreleased]
