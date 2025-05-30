@@ -1,3 +1,6 @@
+//! Main entry point for the Astria Sequencer node.
+//! Handles block production and transaction sequencing for the Astria network.
+
 use std::process::ExitCode;
 
 use astria_eyre::eyre::WrapErr as _;
