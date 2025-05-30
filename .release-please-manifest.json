@@ -19,7 +19,7 @@
   "crates/astria-merkle": "1.0.0",
   "crates/astria-sequencer": "3.1.3-rc.1",
   "crates/astria-sequencer-client": "0.1.1",
-  "crates/astria-sequencer-relayer": "1.0.3",
+  "crates/astria-sequencer-relayer": "1.0.4",
   "crates/astria-sequencer-utils": "0.1.1",
   "crates/astria-telemetry": "0.1.0",
   "crates/astria-test-utils": "0.1.0",

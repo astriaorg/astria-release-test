@@ -950,7 +950,7 @@ dependencies = [
 
 [[package]]
 name = "astria-sequencer-relayer"
-version = "1.0.3"
+version = "1.0.4"
 dependencies = [
  "assert-json-diff",
  "astria-build-info",
