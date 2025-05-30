@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5](https://github.com/astriaorg/astria-release-test/compare/composer-v1.0.4...composer-v1.0.5) (2025-05-30)
+
+
+### Bug Fixes
+
+* add documentation for Astria CLI, Composer & Sequencer ([#73](https://github.com/astriaorg/astria-release-test/issues/73)) ([003d2ba](https://github.com/astriaorg/astria-release-test/commit/003d2ba208bc548ec6d07901269e3dbf62c2da8d))
+
 ## [1.0.4](https://github.com/astriaorg/astria-release-test/compare/composer-v1.0.3...composer-v1.0.4) (2025-05-29)
 
 ## [1.0.3](https://github.com/astriaorg/astria-release-test/compare/composer-v1.0.2...composer-v1.0.3) (2025-05-22)
