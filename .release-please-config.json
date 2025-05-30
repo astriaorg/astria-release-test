@@ -9,7 +9,6 @@
   "pull-request-footer": "Note: Remember to publish the associated component releases and tags after merging this PR.",
   "extra-label": "release,release-please,automated-pr,cargo-workspace",
   "always-update": true,
-  "draft": true,
   "plugins": ["cargo-workspace"],
   "packages": {
     "crates/astria-account-monitor": {
