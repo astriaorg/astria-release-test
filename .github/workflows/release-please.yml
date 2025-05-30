@@ -40,12 +40,14 @@ jobs:
 
       - name: Clean up stale release branches
         env:
-          RELEASE_PLEASE_BRANCH: release-please--branches--main
+          RELEASE_BRANCH: release-please--branches--main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Check if the release-please branch exists on remote and delete it
-          if git ls-remote --heads origin $RELEASE_PLEASE_BRANCH | grep -q $RELEASE_PLEASE_BRANCH; then
-            echo "Found stale release-please branch '$RELEASE_PLEASE_BRANCH', deleting it..."
-            git push origin --delete $RELEASE_PLEASE_BRANCH
+          # Check if the release-please branch exists and delete it if it does
+          if gh api repos/${{ github.repository }}/git/refs/heads/$RELEASE_BRANCH > /dev/null 2>&1; then
+            echo "Found stale release-please branch '$RELEASE_BRANCH', deleting it..."
+            gh api --method DELETE repos/${{ github.repository }}/git/refs/heads/$RELEASE_BRANCH
+            echo "✓ Successfully deleted branch '$RELEASE_BRANCH'"
           fi
 
       - name: Run release-please
