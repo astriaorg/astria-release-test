@@ -1,6 +1,5 @@
 use std::process::ExitCode;
 
-// This comment intentionally exceeds 80 characters to test the updated linter configuration that should now allow longer lines
 use astria_eyre::eyre::WrapErr as _;
 use astria_sequencer::{
     Config,
