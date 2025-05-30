@@ -25,12 +25,15 @@ jobs:
           - target: x86_64-unknown-linux-gnu
             os: depot-ubuntu-24.04-4
             build-tool: cargo
+            platform: linux-x86_64
           - target: aarch64-apple-darwin
             os: macos-latest
             build-tool: cargo
+            platform: darwin-arm64
           - target: x86_64-apple-darwin
             os: macos-latest
             build-tool: cargo
+            platform: darwin-x86_64
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -43,10 +46,23 @@ jobs:
         with:
           version: "24.4"
           repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Extract version from tag (remove component prefix, e.g., "composer-v1.0.5" -> "1.0.5")
+      - name: Extract version from tag
+        shell: bash
+        run: |
+          TAG_NAME="${{ inputs.tag || github.ref_name }}"
+          # Remove the component prefix and 'v' (e.g., "composer-v1.0.5" -> "1.0.5")
+          VERSION=$(echo "$TAG_NAME" | sed 's/^[^-]*-v//')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Extracted version: $VERSION"
+
       - uses: taiki-e/upload-rust-binary-action@v1
         with:
           ref: ${{ env.FULL_REF }}
           bin: astria-${{ inputs.package-name }}
+          # Custom archive name: astria-composer-1.0.5-darwin-arm64.tar.gz
+          archive: astria-${{ inputs.package-name }}-${{ env.VERSION }}-${{ matrix.platform }}
           dry-run: ${{ !startsWith(env.FULL_REF, format('refs/tags/{0}-v', inputs.package-name)) }}
           # (optional) Target triple, default is host triple.
           target: ${{ matrix.target }}
