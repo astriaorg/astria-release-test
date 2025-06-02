@@ -3,6 +3,7 @@
 ####################################################
 
 import 'charts/just/mod.just'
+import? 'local.just'
 
 # Kubetail usage. 'just --list kubetail' for more...
 mod kubetail 'dev/just/kubetail.just'
