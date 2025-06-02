@@ -81,61 +81,6 @@ jobs:
             console.log('Paths Released:', '${{ steps.release.outputs.paths_released }}');
             console.log('PRs Created:', '${{ steps.release.outputs.prs }}');
 
-      - name: Trigger Docker builds for released components
-        if: ${{ steps.release.outputs.releases_created == 'true' }}
-        run: |
-          echo "=== RELEASE-PLEASE WORKFLOW DEBUG ==="
-          echo "Timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-          echo "GitHub Event: ${{ github.event_name }}"
-          echo "GitHub Ref: ${{ github.ref }}"
-          echo "GitHub SHA: ${{ github.sha }}"
-          echo "Workflow Run ID: ${{ github.run_id }}"
-          echo "Workflow Run Number: ${{ github.run_number }}"
-          echo ""
-
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git config --global user.name "github-actions[bot]"
-
-          echo "=== CHECKING EXISTING TAGS ==="
-          echo "Tags before fetch:"
-          git tag --points-at HEAD || echo "No tags at HEAD"
-
-          git fetch --tags
-
-          echo "Tags after fetch:"
-          git tag --points-at HEAD || echo "No tags at HEAD"
-
-          echo ""
-          echo "=== PUSHING TAGS TO TRIGGER DOCKER BUILDS ==="
-
-          # Get all tags pointing at HEAD and push them to origin
-          TAGS_PUSHED=()
-          for tag in $(git tag --points-at HEAD); do
-            echo "Processing tag: $tag"
-            echo "Pushing tag $tag to origin"
-            git push origin "refs/tags/$tag"
-
-            # Verify the tag was pushed successfully
-            if git ls-remote --tags origin | grep -q "refs/tags/$tag"; then
-              echo "✓ Tag $tag successfully pushed and verified"
-              TAGS_PUSHED+=("$tag")
-            else
-              echo "✗ Failed to verify tag $tag on remote"
-            fi
-            echo ""
-          done
-
-          # Summary of pushed tags
-          if [ ${#TAGS_PUSHED[@]} -gt 0 ]; then
-            echo "=== SUMMARY ==="
-            echo "Successfully pushed ${#TAGS_PUSHED[@]} tag(s): ${TAGS_PUSHED[*]}"
-            echo "These tags should trigger the docker-build-test workflow"
-          else
-            echo "=== SUMMARY ==="
-            echo "No tags were pushed"
-          fi
-          echo "End timestamp: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
-
   ## The following jobs are copied from release.yml
   ## and are used to release the proto and charts.
   proto:
