@@ -8,12 +8,12 @@ global:
 
 images:
   geth:
-    repo: ghcr.io/astriaorg/flame
+    repo: ghcr.io/astriaorg/flame-release-test
     pullPolicy: IfNotPresent
     tag: 0.1.0
     devTag: latest
   conductor:
-    repo: ghcr.io/astriaorg/conductor
+    repo: ghcr.io/astriaorg/conductor-release-test
     pullPolicy: IfNotPresent
     tag: 1.1.0
     devTag: latest

@@ -7,15 +7,15 @@ global:
 
 images:
   indexer:
-    repo: ghcr.io/astriaorg/astria-indexer
+    repo: ghcr.io/astriaorg/astria-indexer-release-test
     tag: "0.1.0"
     devTag: latest
   api:
-    repo: ghcr.io/astriaorg/astria-indexer-api
+    repo: ghcr.io/astriaorg/astria-indexer-api-release-test
     tag: "0.1.0"
     devTag: latest
   frontend:
-    repo: ghcr.io/astriaorg/astrotrek
+    repo: ghcr.io/astriaorg/astrotrek-release-test
     tag: "0.1.0"
     devTag: latest
 

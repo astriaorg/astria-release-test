@@ -7,7 +7,7 @@ global:
 
 images:
   accountMonitor:
-    repo: ghcr.io/astriaorg/account-monitor
+    repo: ghcr.io/astriaorg/account-monitor-release-test
     pullPolicy: IfNotPresent
     tag: latest
     devTag: latest

@@ -40,7 +40,7 @@ images:
     pullPolicy: IfNotPresent
     tag: v0.38.17
   sequencer:
-    repo: ghcr.io/astriaorg/sequencer
+    repo: ghcr.io/astriaorg/sequencer-release-test
     pullPolicy: IfNotPresent
     tag: latest
   priceFeed:

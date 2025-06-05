@@ -7,7 +7,7 @@ global:
 
 images:
   auctioneer:
-    repo: ghcr.io/astriaorg/auctioneer
+    repo: ghcr.io/astriaorg/auctioneer-release-test
     pullPolicy: IfNotPresent
     # TODO - update to latest tag
     tag: "pr-1839"
