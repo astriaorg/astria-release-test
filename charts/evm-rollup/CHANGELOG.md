@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.2.4](https://github.com/astriaorg/astria-release-test/compare/sequencer-v2.2.3...sequencer-v2.2.4) (2025-06-05)
+## [2.1.2](https://github.com/astriaorg/astria-release-test/compare/evm-rollup-v2.1.1...evm-rollup-v2.1.2) (2025-06-05)
 
 
 ### Bug Fixes
