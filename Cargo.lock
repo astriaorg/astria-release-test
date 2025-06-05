@@ -645,7 +645,7 @@ dependencies = [
 
 [[package]]
 name = "astria-composer"
-version = "1.0.5"
+version = "1.0.6"
 dependencies = [
  "astria-build-info",
  "astria-config",
