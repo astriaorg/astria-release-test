@@ -1,0 +1,129 @@
+name: Reusable Sync Charts Workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Target environment (devnet, testnet, or mainnet)'
+        required: true
+        type: string
+      commit_sha:
+        description: 'Commit SHA to use for charts'
+        required: true
+        type: string
+      version:
+        description: 'Version string'
+        required: true
+        type: string
+    secrets:
+      CHARTS_REPO_TOKEN:
+        description: 'Token for accessing charts repository'
+        required: true
+      # TODO: Uncomment this when we have a token for argocd-apps
+      # ARGOCD_APPS_TOKEN:
+      #   description: 'Token for accessing argocd-apps repository'
+      #   required: false
+
+jobs:
+  sync-charts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit_sha }}
+          fetch-depth: 1
+
+      - name: Determine chart version
+        id: chart_version
+        run: |
+          # Extract base version (remove commit hash suffix)
+          VERSION_BASE=$(echo "${{ inputs.version }}" | cut -d'-' -f1)
+
+          case "${{ inputs.environment }}" in
+            "devnet")
+              CHART_VERSION="${VERSION_BASE}-devnet"
+              ;;
+            "testnet")
+              CHART_VERSION="${VERSION_BASE}-testnet"
+              ;;
+            "mainnet")
+              CHART_VERSION="${VERSION_BASE}"
+              ;;
+            *)
+              echo "Unknown environment: ${{ inputs.environment }}"
+              exit 1
+              ;;
+          esac
+
+          echo "chart_version=${CHART_VERSION}" >> $GITHUB_OUTPUT
+          echo "Chart version will be: ${CHART_VERSION}"
+
+      - name: Clone and update charts repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.CHARTS_REPO_TOKEN }}
+          REPO_NAME: charts-release-test
+        run: |
+          # Clone charts-release-test repo
+          git clone https://github.com/${{ env.REPO_NAME }}.git ${env.REPO_NAME}
+          cd ${env.REPO_NAME}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Copy charts from source repo
+          rsync -av --delete ../charts/ ./
+
+          # Update Chart.yaml files with environment-specific version
+          CHART_VERSION="${{ steps.chart_version.outputs.chart_version }}"
+          echo "🔄 Updating charts to version: ${CHART_VERSION}"
+          echo "Source commit: ${{ inputs.commit_sha }}"
+          echo "Environment: ${{ inputs.environment }}"
+          find . -name "Chart.yaml" -exec sed -i "s/version: .*/version: ${CHART_VERSION}/" {} \;
+
+          # Commit and push charts
+          git add .
+          git commit -m "chore: update charts for ${{ inputs.environment }} to version ${CHART_VERSION}"
+
+          git tag "${{ inputs.environment }}-${CHART_VERSION}"
+          git push origin "${{ inputs.environment }}-${CHART_VERSION}"
+          git push origin main
+
+          echo "✅ Charts updated to version ${CHART_VERSION} and synced to ${env.REPO_NAME}"
+
+      - name: Update ArgoCD Apps targetRevision (Testnet and MainNet only)
+        if: inputs.environment == 'testnet' || inputs.environment == 'mainnet'
+        run: |
+          echo "🚀 MainNet ArgoCD Apps Update Required"
+          echo ""
+          echo "TODO: Implement ArgoCD apps repository update"
+          echo "This step should:"
+          echo "1. Clone the argocd-apps repository"
+          echo "2. Locate the testnet/mainnet application configuration files"
+          echo "3. Update targetRevision from '*' to specific version (e.g., '1.2.0')"
+          echo "4. Create a PR with the changes for manual review"
+          echo ""
+          echo "Current promotion details:"
+          echo "- Environment: ${{ inputs.environment }}"
+          echo "- Target version: $(echo '${{ inputs.version }}' | cut -d'-' -f1)"
+          echo "- Source commit: ${{ inputs.commit_sha }}"
+          echo ""
+          echo "⚠️  Manual step required: Update argocd-apps repository"
+          echo "    Repository: astriaorg/argocd-apps"
+          echo "    Action: Update testnet/mainnet targetRevision to $(echo '${{ inputs.version }}' | cut -d'-' -f1)"
+
+      - name: Chart sync summary
+        run: |
+          echo "🎉 Chart sync completed for ${{ inputs.environment }}"
+          echo "Chart version: ${{ steps.chart_version.outputs.chart_version }}"
+          echo "Source commit: ${{ inputs.commit_sha }}"
+
+          case "${{ inputs.environment }}" in
+            "devnet")
+              echo "ArgoCD will auto-deploy using targetRevision pattern: *-${{ inputs.environment }}"
+              ;;
+            "testnet"|"mainnet")
+              echo "PR created for ${{ inputs.environment }} deployment - manual approval required"
+              echo "    Repository: astriaorg/argocd-apps"
+              echo "    Action: Update ${{ inputs.environment }} targetRevision to $(echo '${{ inputs.version }}' | cut -d'-' -f1)"
+              ;;
+          esac
