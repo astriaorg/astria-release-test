@@ -8,7 +8,7 @@ env:
   GIT_FETCH_DEPTH: 50
   # Number of characters to use for shortened git commit hashes
   # 8 characters is typically enough to ensure uniqueness while keeping hashes readable
-  GIT_HASH_LENGTH: 8
+  GIT_HASH_LENGTH: 7
   # Charts repository where deployment manifests are stored
   CHARTS_REPO: astriaorg/charts-release-test
 
@@ -24,9 +24,13 @@ on:
           - devnet
           - testnet
           - mainnet
-      component_tag:
-        description: 'Component tag to promote (e.g., sequencer-relayer-v1.0.3, composer-v1.2.1)'
+      commit_sha:
+        description: 'Commit SHA to promote'
         required: true
+        type: string
+      force_version:
+        description: 'Force a specific version (optional, e.g., v1.2.3-preview)'
+        required: false
         type: string
 
 # Limit permissions to minimum required
@@ -43,161 +47,62 @@ jobs:
     steps:
       - run: echo "Security check passed - manual workflow dispatch"
 
-  parse-component-tag:
+  determine-commit:
     needs: security_check
     if: needs.security_check.outputs.should_run
-    runs-on: ubuntu-latest
-    outputs:
-      component_name: ${{ steps.parse.outputs.component_name }}
-      component_version: ${{ steps.parse.outputs.component_version }}
-      commit_sha: ${{ steps.parse.outputs.commit_sha }}
-      chart_exists: ${{ steps.parse.outputs.chart_exists }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: ${{ env.GIT_FETCH_DEPTH }}
-          fetch-tags: true
-
-      - name: Parse and validate component tag
-        id: parse
-        run: |
-          COMPONENT_TAG="${{ github.event.inputs.component_tag }}"
-
-          echo "🔍 Parsing component tag: $COMPONENT_TAG"
-
-          # Validate tag format (component-name-vX.Y.Z)
-          if [[ ! "$COMPONENT_TAG" =~ ^([a-z-]+)-v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-            echo "❌ Invalid tag format. Expected: component-name-vX.Y.Z"
-            echo "   Examples: sequencer-relayer-v1.0.3, composer-v1.2.1"
-            exit 1
-          fi
-
-          COMPONENT_NAME="${BASH_REMATCH[1]}"
-          COMPONENT_VERSION="${BASH_REMATCH[2]}"
-
-          echo "Component: $COMPONENT_NAME"
-          echo "Version: $COMPONENT_VERSION"
-
-          # Verify tag exists
-          if ! git tag -l | grep -q "^$COMPONENT_TAG$"; then
-            echo "❌ Tag '$COMPONENT_TAG' not found in repository"
-            echo ""
-            echo "Available tags for $COMPONENT_NAME:"
-            git tag -l "${COMPONENT_NAME}-v*" --sort=-version:refname | head -10
-            exit 1
-          fi
-
-          # Get commit SHA for this tag
-          COMMIT_SHA=$(git rev-list -n 1 "$COMPONENT_TAG")
-          SHORT_COMMIT_SHA=$(git rev-parse --short=${{ env.GIT_HASH_LENGTH }} "$COMMIT_SHA")
-
-          echo "Tag commit: $SHORT_COMMIT_SHA"
-
-          # Check if corresponding chart exists
-          CHART_PATH="charts/$COMPONENT_NAME"
-          if [[ -d "$CHART_PATH" ]]; then
-            echo "✅ Chart found: $CHART_PATH"
-            CHART_EXISTS="true"
-          else
-            echo "⚠️  No chart found for component: $COMPONENT_NAME"
-            echo "   Available charts:"
-            ls -1 charts/ | grep -v README.md || echo "   No charts found"
-            CHART_EXISTS="false"
-          fi
-
-          echo "component_name=$COMPONENT_NAME" >> $GITHUB_OUTPUT
-          echo "component_version=$COMPONENT_VERSION" >> $GITHUB_OUTPUT
-          echo "commit_sha=$SHORT_COMMIT_SHA" >> $GITHUB_OUTPUT
-          echo "chart_exists=$CHART_EXISTS" >> $GITHUB_OUTPUT
+    uses: ./.github/workflows/reusable-determine-commit.yml
+    with:
+      environment: ${{ github.event.inputs.environment }}
+      commit_sha: ${{ github.event.inputs.commit_sha }}
+      force_version: ${{ github.event.inputs.force_version }}
+      mode: "commit"  # Use the new commit-based mode
 
   sync-charts:
-    needs: [security_check, parse-component-tag]
-    if: needs.security_check.outputs.should_run && needs.parse-component-tag.outputs.chart_exists == 'true'
+    needs: determine-commit
+    if: needs.determine-commit.outputs.components_with_charts != '[]'
     uses: ./.github/workflows/reusable-sync-charts.yml
     with:
       environment: ${{ github.event.inputs.environment }}
-      component_name: ${{ needs.parse-component-tag.outputs.component_name }}
-      component_version: ${{ needs.parse-component-tag.outputs.component_version }}
-      commit_sha: ${{ needs.parse-component-tag.outputs.commit_sha }}
+      commit_sha: ${{ needs.determine-commit.outputs.commit_sha }}
+      promotion_version: ${{ needs.determine-commit.outputs.version }}
+      components_with_charts: ${{ needs.determine-commit.outputs.components_with_charts }}
     secrets:
       CHARTS_REPO_TOKEN: ${{ secrets.CHARTS_REPO_TOKEN }}
 
   promote:
-    needs: [parse-component-tag, sync-charts]
-    if: needs.security_check.outputs.should_run
+    needs: sync-charts
     runs-on: ubuntu-latest
     environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Display promotion details
         run: |
-          echo "🚀 Promoting ${{ needs.parse-component-tag.outputs.component_name }} to ${{ github.event.inputs.environment }}"
+          echo "🚀 Promoting commit ${{ needs.determine-commit.outputs.commit_sha }} to ${{ github.event.inputs.environment }}"
           echo ""
-          echo "**Component Details:**"
-          echo "- Component: ${{ needs.parse-component-tag.outputs.component_name }}"
-          echo "- Version: ${{ needs.parse-component-tag.outputs.component_version }}"
-          echo "- Source tag: ${{ github.event.inputs.component_tag }}"
-          echo "- Commit: ${{ needs.parse-component-tag.outputs.commit_sha }}"
-          echo "- Chart exists: ${{ needs.parse-component-tag.outputs.chart_exists }}"
+          echo "**Promotion Details:**"
+          echo "- Commit: ${{ needs.determine-commit.outputs.commit_sha }}"
+          echo "- Version: ${{ needs.determine-commit.outputs.version }}"
+          echo "- Environment: ${{ github.event.inputs.environment }}"
+          echo "- Changed components: ${{ needs.determine-commit.outputs.changed_components }}"
+          echo "- Components with charts: ${{ needs.determine-commit.outputs.components_with_charts }}"
           echo ""
 
-      - name: Component-specific verification tests
+      - name: Environment verification
         run: |
-          echo "🧪 Running verification tests for ${{ needs.parse-component-tag.outputs.component_name }} on ${{ github.event.inputs.environment }}"
-
-          COMPONENT="${{ needs.parse-component-tag.outputs.component_name }}"
-          ENV="${{ github.event.inputs.environment }}"
-
-          case "$COMPONENT" in
-            "sequencer-relayer")
-              echo "🔗 Testing sequencer-relayer connectivity..."
-              echo "✅ Sequencer-relayer tests passed"
-              ;;
-            "composer")
-              echo "🎼 Testing composer functionality..."
-              echo "✅ Composer tests passed"
-              ;;
-            "conductor")
-              echo "🎯 Testing conductor orchestration..."
-              echo "✅ Conductor tests passed"
-              ;;
-            "sequencer")
-              echo "📦 Testing sequencer block production..."
-              echo "✅ Sequencer tests passed"
-              ;;
-            *)
-              echo "🔍 Running generic component tests for $COMPONENT..."
-              echo "✅ Generic tests passed"
-              ;;
-          esac
+          echo "🧪 Running verification for ${{ github.event.inputs.environment }}"
+          echo "✅ Environment verification passed"
 
       - name: Promotion summary
         run: |
-          echo "🎉 Component promotion completed!"
+          echo "🎉 Promotion completed!"
           echo ""
-          echo "**Promotion Summary:**"
-          echo "- Component: ${{ needs.parse-component-tag.outputs.component_name }}"
-          echo "- Version: ${{ needs.parse-component-tag.outputs.component_version }}"
+          echo "**Summary:**"
           echo "- Environment: ${{ github.event.inputs.environment }}"
-          echo "- Source tag: ${{ github.event.inputs.component_tag }}"
+          echo "- Commit: ${{ needs.determine-commit.outputs.commit_sha }}"
+          echo "- Version: ${{ needs.determine-commit.outputs.version }}"
 
-          if [[ "${{ needs.parse-component-tag.outputs.chart_exists }}" == "true" ]]; then
-            CHART_VERSION="${{ needs.parse-component-tag.outputs.component_version }}"
-            if [[ "${{ github.event.inputs.environment }}" != "mainnet" ]]; then
-              CHART_VERSION="${CHART_VERSION}-${{ github.event.inputs.environment }}"
-            fi
-            echo "- Chart version: $CHART_VERSION"
-            echo ""
-            echo "📊 Charts updated in repository: ${{ env.CHARTS_REPO }}"
+          COMPONENTS_WITH_CHARTS='${{ needs.determine-commit.outputs.components_with_charts }}'
+          if [[ "$COMPONENTS_WITH_CHARTS" != "[]" ]]; then
+            echo "- Charts updated for: $(echo '$COMPONENTS_WITH_CHARTS' | jq -r '.[]' | tr '\n' ' ')"
           else
-            echo ""
-            echo "ℹ️  No chart update needed (component has no chart)"
+            echo "- No charts updated (no components with charts detected)"
           fi
-
-          case "${{ github.event.inputs.environment }}" in
-            "devnet"|"testnet")
-              echo "🚀 ArgoCD will auto-deploy using targetRevision pattern"
-              ;;
-            "mainnet")
-              echo "⚠️  Manual step required: Update argocd-apps targetRevision"
-              ;;
-          esac
