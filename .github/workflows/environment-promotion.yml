@@ -25,11 +25,11 @@ on:
           - testnet
           - mainnet
       commit_sha:
-        description: 'Commit SHA to promote'
-        required: true
+        description: 'Commit SHA to promote (optional, defaults to HEAD of current branch)'
+        required: false
         type: string
-      force_version:
-        description: 'Force a specific version (optional, e.g., v1.2.3-preview)'
+      component_tag:
+        description: 'Component tag to promote (optional, e.g., sequencer-relayer-v1.0.3)'
         required: false
         type: string
 
@@ -39,70 +39,176 @@ permissions:
   id-token: write  # For authenticating to cloud providers
 
 jobs:
-  # Security check for event source and pull request forks
-  security_check:
+  determine-target:
     runs-on: ubuntu-latest
     outputs:
-      should_run: ${{ github.event_name == 'workflow_dispatch' }}
+      commit_sha: ${{ steps.determine.outputs.COMMIT_SHA }}
+      full_commit_sha: ${{ steps.determine.outputs.FULL_COMMIT_SHA }}
+      version: ${{ steps.determine.outputs.VERSION }}
+      components_with_charts: ${{ steps.determine.outputs.COMPONENTS_WITH_CHARTS }}
+      strategy: ${{ steps.determine.outputs.STRATEGY }}
     steps:
-      - run: echo "Security check passed - manual workflow dispatch"
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+          fetch-tags: true
 
-  determine-commit:
-    needs: security_check
-    if: needs.security_check.outputs.should_run
-    uses: ./.github/workflows/reusable-determine-commit.yml
-    with:
-      environment: ${{ github.event.inputs.environment }}
-      commit_sha: ${{ github.event.inputs.commit_sha }}
-      force_version: ${{ github.event.inputs.force_version }}
-      mode: "commit"  # Use the new commit-based mode
+      - name: Determine target commit and strategy
+        id: determine
+        run: |
+          ENVIRONMENT="${{ github.event.inputs.environment }}"
+          INPUT_COMMIT="${{ github.event.inputs.commit_sha }}"
+          INPUT_TAG="${{ github.event.inputs.component_tag }}"
+
+          echo "🔍 Determining promotion strategy:"
+          echo "- Environment: $ENVIRONMENT"
+          echo "- Commit SHA: ${INPUT_COMMIT:-'(not provided)'}"
+          echo "- Component Tag: ${INPUT_TAG:-'(not provided)'}"
+
+          # Priority logic:
+          # 1. If component_tag provided → use that commit
+          # 2. If commit_sha provided → use that commit
+          # 3. Otherwise → use HEAD
+
+          if [[ -n "$INPUT_TAG" ]]; then
+            echo "📦 Using component tag: $INPUT_TAG"
+
+            # Parse component tag (e.g., sequencer-relayer-v1.0.3)
+            if [[ "$INPUT_TAG" =~ ^([a-z-]+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$ ]]; then
+              COMPONENT="${BASH_REMATCH[1]}"
+              TAG_VERSION="${BASH_REMATCH[2]}"
+
+              # Get commit SHA from tag
+              COMMIT_SHA=$(git rev-list -n 1 "$INPUT_TAG" 2>/dev/null || echo "")
+              if [[ -z "$COMMIT_SHA" ]]; then
+                echo "❌ Tag $INPUT_TAG not found"
+                exit 1
+              fi
+
+              SHORT_COMMIT_SHA="${COMMIT_SHA:0:7}"
+              STRATEGY="component_tag"
+              COMPONENTS_WITH_CHARTS="[\"$COMPONENT\"]"
+              VERSION="$TAG_VERSION"
+
+              echo "✅ Component tag strategy:"
+              echo "- Component: $COMPONENT"
+              echo "- Version: $VERSION"
+              echo "- Commit: $SHORT_COMMIT_SHA"
+
+            else
+              echo "❌ Invalid component tag format. Expected: component-name-v1.2.3"
+              exit 1
+            fi
+
+          elif [[ -n "$INPUT_COMMIT" ]]; then
+            echo "📋 Using provided commit SHA: $INPUT_COMMIT"
+            COMMIT_SHA="$INPUT_COMMIT"
+            SHORT_COMMIT_SHA="${COMMIT_SHA:0:7}"
+            STRATEGY="commit_sha"
+
+          else
+            echo "🎯 Using HEAD of current branch"
+            COMMIT_SHA=$(git rev-parse HEAD)
+            SHORT_COMMIT_SHA="${COMMIT_SHA:0:7}"
+            STRATEGY="head"
+          fi
+
+          # For commit_sha and head strategies, detect changed components
+          if [[ "$STRATEGY" == "commit_sha" || "$STRATEGY" == "head" ]]; then
+            echo "🔍 Analyzing commit $SHORT_COMMIT_SHA for component changes..."
+
+            # Get changed files
+            if [[ "$STRATEGY" == "head" ]]; then
+              # Compare HEAD with previous commit
+              CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+            else
+              # Get files changed in specific commit
+              CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA")
+            fi
+
+            echo "📁 Changed files:"
+            echo "$CHANGED_FILES"
+
+            # Find components with changes and charts
+            COMPONENTS_WITH_CHARTS=()
+            COMPONENT_DIRS=("composer" "conductor" "sequencer" "sequencer-relayer" "bridge-withdrawer" "cli")
+
+            for component in "${COMPONENT_DIRS[@]}"; do
+              if echo "$CHANGED_FILES" | grep -q "^crates/astria-$component/" && [[ -d "charts/$component" ]]; then
+                COMPONENTS_WITH_CHARTS+=("$component")
+                echo "✅ $component changed and has chart"
+              fi
+            done
+
+            # Generate version based on environment
+            LATEST_VERSION=$(git tag -l "v*" --sort=-version:refname | grep -v "\-" | head -1 | sed 's/^v//')
+            BASE_VERSION="${LATEST_VERSION:-1.0.0}"
+
+            if [[ "$ENVIRONMENT" == "mainnet" ]]; then
+              VERSION="$BASE_VERSION"
+            else
+              VERSION="$BASE_VERSION-preview-${SHORT_COMMIT_SHA}"
+            fi
+
+            # Convert to JSON
+            COMPONENTS_WITH_CHARTS_JSON=$(printf '%s\n' "${COMPONENTS_WITH_CHARTS[@]}" | jq -R . | jq -s .)
+            COMPONENTS_WITH_CHARTS="$COMPONENTS_WITH_CHARTS_JSON"
+          fi
+
+          # Output results
+          echo "COMMIT_SHA=$SHORT_COMMIT_SHA" >> $GITHUB_OUTPUT
+          echo "FULL_COMMIT_SHA=$COMMIT_SHA" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "COMPONENTS_WITH_CHARTS=$COMPONENTS_WITH_CHARTS" >> $GITHUB_OUTPUT
+          echo "STRATEGY=$STRATEGY" >> $GITHUB_OUTPUT
+
+          echo ""
+          echo "📋 Final determination:"
+          echo "- Strategy: $STRATEGY"
+          echo "- Commit: $SHORT_COMMIT_SHA"
+          echo "- Version: $VERSION"
+          echo "- Components with charts: $COMPONENTS_WITH_CHARTS"
 
   sync-charts:
-    needs: determine-commit
-    if: needs.determine-commit.outputs.components_with_charts != '[]'
+    needs: determine-target
+    if: needs.determine-target.outputs.components_with_charts != '[]'
     uses: ./.github/workflows/reusable-sync-charts.yml
     with:
       environment: ${{ github.event.inputs.environment }}
-      commit_sha: ${{ needs.determine-commit.outputs.commit_sha }}
-      promotion_version: ${{ needs.determine-commit.outputs.version }}
-      components_with_charts: ${{ needs.determine-commit.outputs.components_with_charts }}
+      commit_sha: ${{ needs.determine-target.outputs.full_commit_sha }}
+      version: ${{ needs.determine-target.outputs.version }}
     secrets:
       CHARTS_REPO_TOKEN: ${{ secrets.CHARTS_REPO_TOKEN }}
 
-  promote:
+  update-argocd-apps:
     needs: sync-charts
+    if: needs.sync-charts.result == 'success'
+    uses: ./.github/workflows/reusable-update-argocd-apps.yml
+    with:
+      environment: ${{ github.event.inputs.environment }}
+      version: ${{ needs.determine-target.outputs.version }}
+      commit_sha: ${{ needs.determine-target.outputs.full_commit_sha }}
+    # TODO: Uncomment this when we have a token for argocd-apps
+    # secrets:
+    #   ARGOCD_APPS_TOKEN: ${{ secrets.ARGOCD_APPS_TOKEN }}
+
+  promotion-summary:
+    needs: [determine-target, sync-charts]
+    if: always()
     runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
     steps:
-      - name: Display promotion details
-        run: |
-          echo "🚀 Promoting commit ${{ needs.determine-commit.outputs.commit_sha }} to ${{ github.event.inputs.environment }}"
-          echo ""
-          echo "**Promotion Details:**"
-          echo "- Commit: ${{ needs.determine-commit.outputs.commit_sha }}"
-          echo "- Version: ${{ needs.determine-commit.outputs.version }}"
-          echo "- Environment: ${{ github.event.inputs.environment }}"
-          echo "- Changed components: ${{ needs.determine-commit.outputs.changed_components }}"
-          echo "- Components with charts: ${{ needs.determine-commit.outputs.components_with_charts }}"
-          echo ""
-
-      - name: Environment verification
-        run: |
-          echo "🧪 Running verification for ${{ github.event.inputs.environment }}"
-          echo "✅ Environment verification passed"
-
       - name: Promotion summary
         run: |
-          echo "🎉 Promotion completed!"
+          echo "🎉 Environment Promotion Summary"
           echo ""
-          echo "**Summary:**"
+          echo "**Input Details:**"
           echo "- Environment: ${{ github.event.inputs.environment }}"
-          echo "- Commit: ${{ needs.determine-commit.outputs.commit_sha }}"
-          echo "- Version: ${{ needs.determine-commit.outputs.version }}"
-
-          COMPONENTS_WITH_CHARTS='${{ needs.determine-commit.outputs.components_with_charts }}'
-          if [[ "$COMPONENTS_WITH_CHARTS" != "[]" ]]; then
-            echo "- Charts updated for: $(echo '$COMPONENTS_WITH_CHARTS' | jq -r '.[]' | tr '\n' ' ')"
-          else
-            echo "- No charts updated (no components with charts detected)"
-          fi
+          echo "- Commit SHA Input: ${{ github.event.inputs.commit_sha || '(not provided)' }}"
+          echo "- Component Tag Input: ${{ github.event.inputs.component_tag || '(not provided)' }}"
+          echo ""
+          echo "**Determined Strategy:**"
+          echo "- Strategy: ${{ needs.determine-target.outputs.strategy }}"
+          echo "- Target Commit: ${{ needs.determine-target.outputs.commit_sha }}"
+          echo "- Version: ${{ needs.determine-target.outputs.version }}"
+          echo "- Components with Charts: ${{ needs.determine-target.outputs.components_with_charts }}"
+          echo ""

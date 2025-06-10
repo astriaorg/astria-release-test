@@ -19,10 +19,6 @@ on:
       CHARTS_REPO_TOKEN:
         description: 'Token for accessing charts repository'
         required: true
-      # TODO: Uncomment this when we have a token for argocd-apps
-      # ARGOCD_APPS_TOKEN:
-      #   description: 'Token for accessing argocd-apps repository'
-      #   required: false
 
 jobs:
   sync-charts:
@@ -90,40 +86,8 @@ jobs:
 
           echo "✅ Charts updated to version ${CHART_VERSION} and synced to ${env.REPO_NAME}"
 
-      - name: Update ArgoCD Apps targetRevision (Testnet and MainNet only)
-        if: inputs.environment == 'testnet' || inputs.environment == 'mainnet'
-        run: |
-          echo "🚀 MainNet ArgoCD Apps Update Required"
-          echo ""
-          echo "TODO: Implement ArgoCD apps repository update"
-          echo "This step should:"
-          echo "1. Clone the argocd-apps repository"
-          echo "2. Locate the testnet/mainnet application configuration files"
-          echo "3. Update targetRevision from '*' to specific version (e.g., '1.2.0')"
-          echo "4. Create a PR with the changes for manual review"
-          echo ""
-          echo "Current promotion details:"
-          echo "- Environment: ${{ inputs.environment }}"
-          echo "- Target version: $(echo '${{ inputs.version }}' | cut -d'-' -f1)"
-          echo "- Source commit: ${{ inputs.commit_sha }}"
-          echo ""
-          echo "⚠️  Manual step required: Update argocd-apps repository"
-          echo "    Repository: astriaorg/argocd-apps"
-          echo "    Action: Update testnet/mainnet targetRevision to $(echo '${{ inputs.version }}' | cut -d'-' -f1)"
-
       - name: Chart sync summary
         run: |
           echo "🎉 Chart sync completed for ${{ inputs.environment }}"
           echo "Chart version: ${{ steps.chart_version.outputs.chart_version }}"
           echo "Source commit: ${{ inputs.commit_sha }}"
-
-          case "${{ inputs.environment }}" in
-            "devnet")
-              echo "ArgoCD will auto-deploy using targetRevision pattern: *-${{ inputs.environment }}"
-              ;;
-            "testnet"|"mainnet")
-              echo "PR created for ${{ inputs.environment }} deployment - manual approval required"
-              echo "    Repository: astriaorg/argocd-apps"
-              echo "    Action: Update ${{ inputs.environment }} targetRevision to $(echo '${{ inputs.version }}' | cut -d'-' -f1)"
-              ;;
-          esac

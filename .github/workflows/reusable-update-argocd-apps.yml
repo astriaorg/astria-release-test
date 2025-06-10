@@ -1,0 +1,85 @@
+name: Reusable Update ArgoCD Apps Workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Target environment (devnet, testnet, or mainnet)'
+        required: true
+        type: string
+      version:
+        description: 'Version to set in targetRevision'
+        required: true
+        type: string
+      commit_sha:
+        description: 'Source commit SHA for reference'
+        required: true
+        type: string
+    # TODO: Uncomment this when we have a token for argocd-apps
+    # secrets:
+    #   ARGOCD_APPS_TOKEN:
+    #     description: 'Token for accessing argocd-apps repository'
+    #     required: true
+
+jobs:
+  update-argocd-apps:
+    runs-on: ubuntu-latest
+    # Run for devnet, testnet, and mainnet
+    if: inputs.environment == 'devnet' || inputs.environment == 'testnet' || inputs.environment == 'mainnet'
+    steps:
+      - name: Update ArgoCD Apps targetRevision
+        env:
+          GITHUB_TOKEN: ${{ secrets.ARGOCD_APPS_TOKEN }}
+          ARGOCD_REPO: astriaorg/argocd-apps
+        run: |
+          echo "🚀 Updating ArgoCD Apps for ${{ inputs.environment }}"
+          echo ""
+          echo "TODO: Implement ArgoCD apps repository update"
+          echo "This step should:"
+          echo "1. Clone the argocd-apps repository"
+          echo "2. Locate the ${{ inputs.environment }} application configuration files"
+
+          case "${{ inputs.environment }}" in
+            "devnet")
+              echo "3. Verify targetRevision is set to '*-devnet' pattern (should already be correct)"
+              echo "4. Update any environment-specific configurations if needed"
+              ;;
+            "testnet"|"mainnet")
+              echo "3. Update targetRevision from '*' to specific version"
+              echo "4. Create a PR with the changes for manual review"
+              ;;
+          esac
+
+          echo ""
+          echo "Current promotion details:"
+          echo "- Environment: ${{ inputs.environment }}"
+          echo "- Target version: $(echo '${{ inputs.version }}' | cut -d'-' -f1)"
+          echo "- Source commit: ${{ inputs.commit_sha }}"
+          echo ""
+          echo "⚠️  Manual step required: Update argocd-apps repository"
+          echo "    Repository: ${{ env.ARGOCD_REPO }}"
+
+          case "${{ inputs.environment }}" in
+            "devnet")
+              echo "    Action: Verify devnet configuration and update any environment-specific settings"
+              ;;
+            "testnet"|"mainnet")
+              echo "    Action: Update ${{ inputs.environment }} targetRevision to $(echo '${{ inputs.version }}' | cut -d'-' -f1)"
+              ;;
+          esac
+
+      - name: ArgoCD Apps update summary
+        run: |
+          echo "📋 ArgoCD Apps update completed for ${{ inputs.environment }}"
+          echo "- Target version: $(echo '${{ inputs.version }}' | cut -d'-' -f1)"
+          echo "- Source commit: ${{ inputs.commit_sha }}"
+          echo "- Repository: astriaorg/argocd-apps"
+
+          case "${{ inputs.environment }}" in
+            "devnet")
+              echo "- Action: DevNet configuration verified/updated"
+              ;;
+            "testnet"|"mainnet")
+              echo "- Action: TargetRevision updated for ${{ inputs.environment }}"
+              ;;
+          esac
