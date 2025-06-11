@@ -4,15 +4,11 @@ on:
   workflow_call:
     inputs:
       environment:
-        description: 'Target environment (devnet, testnet, or mainnet)'
+        description: 'Target environment (testnet or mainnet)'
         required: true
         type: string
       commit_sha:
         description: 'Commit SHA to use for charts'
-        required: true
-        type: string
-      version:
-        description: 'Version string'
         required: true
         type: string
     secrets:
@@ -30,30 +26,21 @@ jobs:
           ref: ${{ inputs.commit_sha }}
           fetch-depth: 1
 
-      - name: Determine chart version
+      - name: Read chart version from Chart.yaml
         id: chart_version
         run: |
-          # Extract base version (remove commit hash suffix)
-          VERSION_BASE=$(echo "${{ inputs.version }}" | cut -d'-' -f1)
+          # Read current version from Chart.yaml (assuming all charts have same version)
+          CHART_VERSION=$(grep '^version:' charts/*/Chart.yaml | head -1 | cut -d':' -f2 | tr -d ' ')
 
-          case "${{ inputs.environment }}" in
-            "devnet")
-              CHART_VERSION="${VERSION_BASE}-devnet"
-              ;;
-            "testnet")
-              CHART_VERSION="${VERSION_BASE}-testnet"
-              ;;
-            "mainnet")
-              CHART_VERSION="${VERSION_BASE}"
-              ;;
-            *)
-              echo "Unknown environment: ${{ inputs.environment }}"
-              exit 1
-              ;;
-          esac
+          if [[ -z "$CHART_VERSION" ]]; then
+            echo "❌ Could not find chart version in Chart.yaml files"
+            exit 1
+          fi
 
           echo "chart_version=${CHART_VERSION}" >> $GITHUB_OUTPUT
-          echo "Chart version will be: ${CHART_VERSION}"
+          echo "📊 Chart version: ${CHART_VERSION}"
+          echo "🎯 Environment: ${{ inputs.environment }}"
+          echo "📝 Note: Same chart version will be used across all environments"
 
       - name: Clone and update charts repository
         env:

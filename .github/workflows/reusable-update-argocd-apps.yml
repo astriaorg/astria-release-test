@@ -4,11 +4,7 @@ on:
   workflow_call:
     inputs:
       environment:
-        description: 'Target environment (devnet, testnet, or mainnet)'
-        required: true
-        type: string
-      version:
-        description: 'Version to set in targetRevision'
+        description: 'Target environment (testnet or mainnet)'
         required: true
         type: string
       commit_sha:
@@ -24,8 +20,8 @@ on:
 jobs:
   update-argocd-apps:
     runs-on: ubuntu-latest
-    # Run for devnet, testnet, and mainnet
-    if: inputs.environment == 'devnet' || inputs.environment == 'testnet' || inputs.environment == 'mainnet'
+    # Run for testnet and mainnet
+    if: inputs.environment == 'testnet' || inputs.environment == 'mainnet'
     steps:
       - name: Update ArgoCD Apps targetRevision
         env:
@@ -38,48 +34,20 @@ jobs:
           echo "This step should:"
           echo "1. Clone the argocd-apps repository"
           echo "2. Locate the ${{ inputs.environment }} application configuration files"
-
-          case "${{ inputs.environment }}" in
-            "devnet")
-              echo "3. Verify targetRevision is set to '*-devnet' pattern (should already be correct)"
-              echo "4. Update any environment-specific configurations if needed"
-              ;;
-            "testnet"|"mainnet")
-              echo "3. Update targetRevision from '*' to specific version"
-              echo "4. Create a PR with the changes for manual review"
-              ;;
-          esac
-
+          echo "3. Update targetRevision to match the chart version deployed to ${{ inputs.environment }}"
+          echo "4. Create a PR with the changes for manual review"
           echo ""
           echo "Current promotion details:"
           echo "- Environment: ${{ inputs.environment }}"
-          echo "- Target version: $(echo '${{ inputs.version }}' | cut -d'-' -f1)"
           echo "- Source commit: ${{ inputs.commit_sha }}"
           echo ""
           echo "⚠️  Manual step required: Update argocd-apps repository"
           echo "    Repository: ${{ env.ARGOCD_REPO }}"
-
-          case "${{ inputs.environment }}" in
-            "devnet")
-              echo "    Action: Verify devnet configuration and update any environment-specific settings"
-              ;;
-            "testnet"|"mainnet")
-              echo "    Action: Update ${{ inputs.environment }} targetRevision to $(echo '${{ inputs.version }}' | cut -d'-' -f1)"
-              ;;
-          esac
+          echo "    Action: Update ${{ inputs.environment }} targetRevision to match deployed chart version"
 
       - name: ArgoCD Apps update summary
         run: |
           echo "📋 ArgoCD Apps update completed for ${{ inputs.environment }}"
-          echo "- Target version: $(echo '${{ inputs.version }}' | cut -d'-' -f1)"
           echo "- Source commit: ${{ inputs.commit_sha }}"
           echo "- Repository: astriaorg/argocd-apps"
-
-          case "${{ inputs.environment }}" in
-            "devnet")
-              echo "- Action: DevNet configuration verified/updated"
-              ;;
-            "testnet"|"mainnet")
-              echo "- Action: TargetRevision updated for ${{ inputs.environment }}"
-              ;;
-          esac
+          echo "- Action: TargetRevision updated for ${{ inputs.environment }}"
