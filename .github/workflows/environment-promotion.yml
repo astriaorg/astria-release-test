@@ -45,6 +45,7 @@ jobs:
       full_commit_sha: ${{ steps.determine.outputs.FULL_COMMIT_SHA }}
       components_with_charts: ${{ steps.determine.outputs.COMPONENTS_WITH_CHARTS }}
       strategy: ${{ steps.determine.outputs.STRATEGY }}
+      component_tag: ${{ steps.determine.outputs.COMPONENT_TAG }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -85,6 +86,7 @@ jobs:
               SHORT_COMMIT_SHA="${COMMIT_SHA:0:7}"
               STRATEGY="component_tag"
               COMPONENTS_WITH_CHARTS="[\"$COMPONENT\"]"
+              COMPONENT_TAG="$INPUT_TAG"
 
               echo "✅ Component tag strategy:"
               echo "- Component: $COMPONENT"
@@ -145,6 +147,7 @@ jobs:
           echo "FULL_COMMIT_SHA=$COMMIT_SHA" >> $GITHUB_OUTPUT
           echo "COMPONENTS_WITH_CHARTS=$COMPONENTS_WITH_CHARTS" >> $GITHUB_OUTPUT
           echo "STRATEGY=$STRATEGY" >> $GITHUB_OUTPUT
+          echo "COMPONENT_TAG=$COMPONENT_TAG" >> $GITHUB_OUTPUT
 
           echo ""
           echo "📋 Final determination:"
@@ -159,6 +162,7 @@ jobs:
     with:
       environment: ${{ github.event.inputs.environment }}
       commit_sha: ${{ needs.determine-target.outputs.full_commit_sha }}
+      component_tag: ${{ needs.determine-target.outputs.component_tag }}
     secrets:
       CHARTS_REPO_TOKEN: ${{ secrets.CHARTS_REPO_TOKEN }}
 
