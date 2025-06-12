@@ -16,7 +16,7 @@ on:
         required: true
         type: string
     secrets:
-      CHARTS_REPO_TOKEN:
+      CHARTS_RELEASE_TEST_REPO_TOKEN:
         description: 'Token for accessing charts repository'
         required: true
 
@@ -58,7 +58,7 @@ jobs:
 
       - name: Clone and update charts repository
         env:
-          GITHUB_TOKEN: ${{ secrets.CHARTS_REPO_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.CHARTS_RELEASE_TEST_REPO_TOKEN }}
           REPO_NAME: astriaorg/charts-release-test
         run: |
           # Clone charts-release-test repo

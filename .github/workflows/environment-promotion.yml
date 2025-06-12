@@ -164,7 +164,7 @@ jobs:
       commit_sha: ${{ needs.determine-target.outputs.full_commit_sha }}
       component_tag: ${{ needs.determine-target.outputs.component_tag }}
     secrets:
-      CHARTS_REPO_TOKEN: ${{ secrets.CHARTS_REPO_TOKEN }}
+      CHARTS_RELEASE_TEST_REPO_TOKEN: ${{ secrets.CHARTS_RELEASE_TEST_REPO_TOKEN }}
 
   update-argocd-apps:
     needs: sync-charts
