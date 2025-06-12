@@ -62,7 +62,7 @@ jobs:
           REPO_NAME: astriaorg/charts-release-test
         run: |
           # Clone charts-release-test repo
-          git clone https://github.com/${{ env.REPO_NAME }}.git charts-repo
+          git clone https://github.com/$REPO_NAME.git charts-repo
           cd charts-repo
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
@@ -97,10 +97,10 @@ jobs:
 
           # Commit and push charts
           git add .
-          git commit -m "Changes from ${REPO_NAME}@${{ inputs.commit_sha }}"
+          git commit -m "Changes from $REPO_NAME@${{ inputs.commit_sha }}"
           git push origin main
 
-          echo "✅ Charts updated to version ${CHART_VERSION} and synced to ${env.REPO_NAME}"
+          echo "✅ Charts updated to version ${CHART_VERSION} and synced to $REPO_NAME"
 
       - name: Chart sync summary
         run: |
