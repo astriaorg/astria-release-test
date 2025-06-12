@@ -62,7 +62,7 @@ jobs:
           REPO_NAME: astriaorg/charts-release-test
         run: |
           # Clone charts-release-test repo
-          git clone https://github.com/$REPO_NAME.git charts-repo
+          git clone https://$GITHUB_TOKEN@github.com/$REPO_NAME.git charts-repo
           cd charts-repo
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
