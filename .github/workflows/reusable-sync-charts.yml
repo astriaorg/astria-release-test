@@ -97,7 +97,7 @@ jobs:
 
           # Commit and push charts
           git add .
-          git commit -m "Changes from ${env.REPO_NAME}@${{ inputs.commit_sha }}"
+          git commit -m "Changes from ${REPO_NAME}@${{ inputs.commit_sha }}"
           git push origin main
 
           echo "✅ Charts updated to version ${CHART_VERSION} and synced to ${env.REPO_NAME}"
