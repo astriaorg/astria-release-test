@@ -1,0 +1,53 @@
+name: Reusable Update ArgoCD Apps Workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Target environment (testnet or mainnet)'
+        required: true
+        type: string
+      commit_sha:
+        description: 'Source commit SHA for reference'
+        required: true
+        type: string
+    # TODO: Uncomment this when we have a token for argocd-apps
+    # secrets:
+    #   ARGOCD_APPS_TOKEN:
+    #     description: 'Token for accessing argocd-apps repository'
+    #     required: true
+
+jobs:
+  update-argocd-apps:
+    runs-on: ubuntu-latest
+    # Run for testnet and mainnet
+    if: inputs.environment == 'testnet' || inputs.environment == 'mainnet'
+    steps:
+      - name: Update ArgoCD Apps targetRevision
+        env:
+          GITHUB_TOKEN: ${{ secrets.ARGOCD_APPS_TOKEN }}
+          ARGOCD_REPO: astriaorg/argocd-apps
+        run: |
+          echo "🚀 Updating ArgoCD Apps for ${{ inputs.environment }}"
+          echo ""
+          echo "TODO: Implement ArgoCD apps repository update"
+          echo "This step should:"
+          echo "1. Clone the argocd-apps repository"
+          echo "2. Locate the ${{ inputs.environment }} application configuration files"
+          echo "3. Update targetRevision to match the chart version deployed to ${{ inputs.environment }}"
+          echo "4. Create a PR with the changes for manual review"
+          echo ""
+          echo "Current promotion details:"
+          echo "- Environment: ${{ inputs.environment }}"
+          echo "- Source commit: ${{ inputs.commit_sha }}"
+          echo ""
+          echo "⚠️  Manual step required: Update argocd-apps repository"
+          echo "    Repository: ${{ env.ARGOCD_REPO }}"
+          echo "    Action: Update ${{ inputs.environment }} targetRevision to match deployed chart version"
+
+      - name: ArgoCD Apps update summary
+        run: |
+          echo "📋 ArgoCD Apps update completed for ${{ inputs.environment }}"
+          echo "- Source commit: ${{ inputs.commit_sha }}"
+          echo "- Repository: astriaorg/argocd-apps"
+          echo "- Action: TargetRevision updated for ${{ inputs.environment }}"

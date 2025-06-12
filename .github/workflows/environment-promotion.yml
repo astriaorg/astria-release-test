@@ -8,35 +8,27 @@ env:
   GIT_FETCH_DEPTH: 50
   # Number of characters to use for shortened git commit hashes
   # 8 characters is typically enough to ensure uniqueness while keeping hashes readable
-  GIT_HASH_LENGTH: 8
+  GIT_HASH_LENGTH: 7
   # Charts repository where deployment manifests are stored
   CHARTS_REPO: astriaorg/charts-release-test
 
 on:
-  # Tag-based promotion
-  push:
-    tags:
-      - 'devnet/v*'
-      - 'testnet/v*'
-      - 'mainnet/v*'
-
   # Manual trigger for promotions
   workflow_dispatch:
     inputs:
-      action:
-        description: 'Action to perform'
+      environment:
+        description: 'Environment to promote to'
         required: true
         type: choice
         options:
-          - promote-to-devnet
-          - promote-to-testnet
-          - promote-to-mainnet
-      version:
-        description: 'Version to tag (e.g., v1.2.3)'
-        required: true
-        type: string
+          - testnet
+          - mainnet
       commit_sha:
-        description: 'Specific commit SHA to promote (defaults to latest build from previous environment)'
+        description: 'Commit SHA to promote (optional, defaults to HEAD of current branch)'
+        required: false
+        type: string
+      component_tag:
+        description: 'Component tag to promote (optional, e.g., sequencer-relayer-v1.0.3)'
         required: false
         type: string
 
@@ -46,185 +38,161 @@ permissions:
   id-token: write  # For authenticating to cloud providers
 
 jobs:
-  # Security check for event source and pull request forks
-  security_check:
+  determine-target:
     runs-on: ubuntu-latest
     outputs:
-      should_run: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false }}
+      commit_sha: ${{ steps.determine.outputs.COMMIT_SHA }}
+      full_commit_sha: ${{ steps.determine.outputs.FULL_COMMIT_SHA }}
+      components_with_charts: ${{ steps.determine.outputs.COMPONENTS_WITH_CHARTS }}
+      strategy: ${{ steps.determine.outputs.STRATEGY }}
+      component_tag: ${{ steps.determine.outputs.COMPONENT_TAG }}
     steps:
-      - run: echo "Security check passed - this is a push event or the pull request is from the same repository"
-
-  # Determine commit to promote for DevNet
-  determine-devnet-commit:
-    needs: security_check
-    if: |
-      needs.security_check.outputs.should_run &&
-      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/devnet/')) ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'promote-to-devnet'))
-    uses: ./.github/workflows/reusable-determine-commit.yml
-    with:
-      environment: 'devnet'
-      commit_sha: ${{ github.event.inputs.commit_sha }}
-      version: ${{ github.event.inputs.version }}
-
-  # Sync charts for DevNet
-  sync-devnet-charts:
-    needs: determine-devnet-commit
-    if: |
-      needs.security_check.outputs.should_run &&
-      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/devnet/')) ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'promote-to-devnet'))
-    uses: ./.github/workflows/reusable-sync-charts.yml
-    with:
-      environment: 'devnet'
-      commit_sha: ${{ needs.determine-devnet-commit.outputs.commit_sha }}
-      version: ${{ needs.determine-devnet-commit.outputs.version }}
-    secrets:
-      CHARTS_REPO_TOKEN: ${{ secrets.CHARTS_REPO_TOKEN }}
-
-  # Promote to DevNet (via tag or manual trigger)
-  promote-to-devnet:
-    needs: [determine-devnet-commit, sync-devnet-charts]
-    if: |
-      needs.security_check.outputs.should_run &&
-      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/devnet/')) ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'promote-to-devnet'))
-    runs-on: ubuntu-latest
-    environment: devnet
-    steps:
-      - name: Run DevNet Verification Tests
-        run: |
-          # Add your DevNet verification tests here
-          echo "Running verification tests for DevNet"
-
-  # Determine commit to promote for TestNet
-  determine-testnet-commit:
-    needs: security_check
-    if: |
-      needs.security_check.outputs.should_run == 'true' &&
-      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/testnet/')) ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'promote-to-testnet'))
-    uses: ./.github/workflows/reusable-determine-commit.yml
-    with:
-      environment: 'testnet'
-      commit_sha: ${{ github.event.inputs.commit_sha }}
-      version: ${{ github.event.inputs.version }}
-
-  # Sync charts for TestNet
-  sync-testnet-charts:
-    needs: determine-testnet-commit
-    if: |
-      needs.security_check.outputs.should_run == 'true' &&
-      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/testnet/')) ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'promote-to-testnet'))
-    uses: ./.github/workflows/reusable-sync-charts.yml
-    with:
-      environment: 'testnet'
-      commit_sha: ${{ needs.determine-testnet-commit.outputs.commit_sha }}
-      version: ${{ needs.determine-testnet-commit.outputs.version }}
-    secrets:
-      CHARTS_REPO_TOKEN: ${{ secrets.CHARTS_REPO_TOKEN }}
-
-  # Promote to TestNet (via tag or manual trigger)
-  promote-to-testnet:
-    needs: [determine-testnet-commit, sync-testnet-charts]
-    if: |
-      needs.security_check.outputs.should_run == 'true' &&
-      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/testnet/')) ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'promote-to-testnet'))
-    runs-on: ubuntu-latest
-    environment: testnet
-    steps:
-      - name: Run TestNet Verification Tests
-        run: |
-          # Add TestNet verification tests here
-          echo "Running verification tests for TestNet"
-
-  # Determine commit to promote for MainNet
-  determine-mainnet-commit:
-    needs: security_check
-    if: |
-      needs.security_check.outputs.should_run == 'true' &&
-      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/mainnet/')) ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'promote-to-mainnet'))
-    uses: ./.github/workflows/reusable-determine-commit.yml
-    with:
-      environment: 'mainnet'
-      commit_sha: ${{ github.event.inputs.commit_sha }}
-      version: ${{ github.event.inputs.version }}
-
-  # Sync charts for MainNet
-  sync-mainnet-charts:
-    needs: determine-mainnet-commit
-    if: |
-      needs.security_check.outputs.should_run == 'true' &&
-      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/mainnet/')) ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'promote-to-mainnet'))
-    uses: ./.github/workflows/reusable-sync-charts.yml
-    with:
-      environment: 'mainnet'
-      commit_sha: ${{ needs.determine-mainnet-commit.outputs.commit_sha }}
-      version: ${{ needs.determine-mainnet-commit.outputs.version }}
-    secrets:
-      CHARTS_REPO_TOKEN: ${{ secrets.CHARTS_REPO_TOKEN }}
-
-  # Promote to MainNet (via tag or manual trigger)
-  promote-to-mainnet:
-    needs: [determine-mainnet-commit, sync-mainnet-charts]
-    if: |
-      needs.security_check.outputs.should_run == 'true' &&
-      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/mainnet/')) ||
-      (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'promote-to-mainnet'))
-    runs-on: ubuntu-latest
-    environment: mainnet
-    steps:
-      - name: Run MainNet Verification Tests
-        run: |
-          # Add MainNet verification tests here
-          echo "Running verification tests for MainNet"
-
-      # Create GitHub Release similar to release-please
-      - name: Create GitHub Release
-        if: success()
-        uses: actions/github-script@v6
+      - uses: actions/checkout@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const version = "${{ needs.determine-mainnet-commit.outputs.version }}";
-            const commit = "${{ needs.determine-mainnet-commit.outputs.commit_sha }}";
+          fetch-depth: 50
+          fetch-tags: true
 
-            // Create a release with information from all components
-            const releaseData = {
-              tag_name: `release/${version}`,
-              name: `Release ${version}`,
-              body: `
-              # Release ${version}
+      - name: Determine target commit and strategy
+        id: determine
+        run: |
+          ENVIRONMENT="${{ github.event.inputs.environment }}"
+          INPUT_COMMIT="${{ github.event.inputs.commit_sha }}"
+          INPUT_TAG="${{ github.event.inputs.component_tag }}"
 
-              This release has been deployed to MainNet.
+          echo "🔍 Determining promotion strategy:"
+          echo "- Environment: $ENVIRONMENT"
+          echo "- Commit SHA: ${INPUT_COMMIT:-'(not provided)'}"
+          echo "- Component Tag: ${INPUT_TAG:-'(not provided)'}"
 
-              ## Components
+          # Priority logic:
+          # 1. If component_tag provided → use that commit
+          # 2. If commit_sha provided → use that commit
+          # 3. Otherwise → use HEAD
 
-              The following components have been deployed with commit SHA ${commit}:
+          if [[ -n "$INPUT_TAG" ]]; then
+            echo "📦 Using component tag: $INPUT_TAG"
 
-              - Composer
-              - Conductor
-              - Sequencer
-              - Sequencer Relayer
-              - Bridge Withdrawer
-              - CLI
+            # Parse component tag (e.g., sequencer-relayer-v1.0.3)
+            if [[ "$INPUT_TAG" =~ ^([a-z-]+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$ ]]; then
+              COMPONENT="${BASH_REMATCH[1]}"
 
-              See CHANGELOG.md for details on what's included in this release.
-              `,
-              draft: false,
-              prerelease: false
-            };
+              # Get commit SHA from tag
+              COMMIT_SHA=$(git rev-list -n 1 "$INPUT_TAG" 2>/dev/null || echo "")
+              if [[ -z "$COMMIT_SHA" ]]; then
+                echo "❌ Tag $INPUT_TAG not found"
+                exit 1
+              fi
 
-            console.log('Creating release:', releaseData);
+              SHORT_COMMIT_SHA="${COMMIT_SHA:0:7}"
+              STRATEGY="component_tag"
+              COMPONENTS_WITH_CHARTS="[\"$COMPONENT\"]"
+              COMPONENT_TAG="$INPUT_TAG"
 
-            const release = await github.rest.repos.createRelease({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ...releaseData
-            });
+              echo "✅ Component tag strategy:"
+              echo "- Component: $COMPONENT"
+              echo "- Commit: $SHORT_COMMIT_SHA"
 
-            console.log('Release created:', release.data.html_url);
+            else
+              echo "❌ Invalid component tag format. Expected: component-name-v1.2.3"
+              exit 1
+            fi
+
+          elif [[ -n "$INPUT_COMMIT" ]]; then
+            echo "📋 Using provided commit SHA: $INPUT_COMMIT"
+            COMMIT_SHA="$INPUT_COMMIT"
+            SHORT_COMMIT_SHA="${COMMIT_SHA:0:7}"
+            STRATEGY="commit_sha"
+
+          else
+            echo "🎯 Using HEAD of current branch"
+            COMMIT_SHA=$(git rev-parse HEAD)
+            SHORT_COMMIT_SHA="${COMMIT_SHA:0:7}"
+            STRATEGY="head"
+          fi
+
+          # For commit_sha and head strategies, detect changed components
+          if [[ "$STRATEGY" == "commit_sha" || "$STRATEGY" == "head" ]]; then
+            echo "🔍 Analyzing commit $SHORT_COMMIT_SHA for component changes..."
+
+            # Get changed files
+            if [[ "$STRATEGY" == "head" ]]; then
+              # Compare HEAD with previous commit
+              CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD)
+            else
+              # Get files changed in specific commit
+              CHANGED_FILES=$(git diff-tree --no-commit-id --name-only -r "$COMMIT_SHA")
+            fi
+
+            echo "📁 Changed files:"
+            echo "$CHANGED_FILES"
+
+            # Find components with changes and charts
+            COMPONENTS_WITH_CHARTS=()
+            COMPONENT_DIRS=("composer" "conductor" "sequencer" "sequencer-relayer" "bridge-withdrawer" "cli")
+
+            for component in "${COMPONENT_DIRS[@]}"; do
+              if echo "$CHANGED_FILES" | grep -q "^crates/astria-$component/" && [[ -d "charts/$component" ]]; then
+                COMPONENTS_WITH_CHARTS+=("$component")
+                echo "✅ $component changed and has chart"
+              fi
+            done
+
+            # Convert to JSON
+            COMPONENTS_WITH_CHARTS_JSON=$(printf '%s\n' "${COMPONENTS_WITH_CHARTS[@]}" | jq -R . | jq -s .)
+            COMPONENTS_WITH_CHARTS="$COMPONENTS_WITH_CHARTS_JSON"
+          fi
+
+          # Output results
+          echo "COMMIT_SHA=$SHORT_COMMIT_SHA" >> $GITHUB_OUTPUT
+          echo "FULL_COMMIT_SHA=$COMMIT_SHA" >> $GITHUB_OUTPUT
+          echo "COMPONENTS_WITH_CHARTS=$COMPONENTS_WITH_CHARTS" >> $GITHUB_OUTPUT
+          echo "STRATEGY=$STRATEGY" >> $GITHUB_OUTPUT
+          echo "COMPONENT_TAG=$COMPONENT_TAG" >> $GITHUB_OUTPUT
+
+          echo ""
+          echo "📋 Final determination:"
+          echo "- Strategy: $STRATEGY"
+          echo "- Commit: $SHORT_COMMIT_SHA"
+          echo "- Components with charts: $COMPONENTS_WITH_CHARTS"
+
+  sync-charts:
+    needs: determine-target
+    if: needs.determine-target.outputs.components_with_charts != '[]'
+    uses: ./.github/workflows/reusable-sync-charts.yml
+    with:
+      environment: ${{ github.event.inputs.environment }}
+      commit_sha: ${{ needs.determine-target.outputs.full_commit_sha }}
+      component_tag: ${{ needs.determine-target.outputs.component_tag }}
+    secrets:
+      CHARTS_RELEASE_TEST_REPO_TOKEN: ${{ secrets.CHARTS_RELEASE_TEST_REPO_TOKEN }}
+
+  update-argocd-apps:
+    needs: sync-charts
+    if: needs.sync-charts.result == 'success'
+    uses: ./.github/workflows/reusable-update-argocd-apps.yml
+    with:
+      environment: ${{ github.event.inputs.environment }}
+      commit_sha: ${{ needs.determine-target.outputs.full_commit_sha }}
+    # TODO: Uncomment this when we have a token for argocd-apps
+    # secrets:
+    #   ARGOCD_APPS_TOKEN: ${{ secrets.ARGOCD_APPS_TOKEN }}
+
+  promotion-summary:
+    needs: [determine-target, sync-charts]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Promotion summary
+        run: |
+          echo "🎉 Environment Promotion Summary"
+          echo ""
+          echo "**Input Details:**"
+          echo "- Environment: ${{ github.event.inputs.environment }}"
+          echo "- Commit SHA Input: ${{ github.event.inputs.commit_sha || '(not provided)' }}"
+          echo "- Component Tag Input: ${{ github.event.inputs.component_tag || '(not provided)' }}"
+          echo ""
+          echo "**Determined Strategy:**"
+          echo "- Strategy: ${{ needs.determine-target.outputs.strategy }}"
+          echo "- Target Commit: ${{ needs.determine-target.outputs.commit_sha }}"
+          echo "- Components with Charts: ${{ needs.determine-target.outputs.components_with_charts }}"
+          echo ""
