@@ -1,0 +1,33 @@
+on:
+  push:
+    branches:
+    - aajimal/teleport
+jobs:
+  demo:
+    permissions:
+      # The "id-token: write" permission is required or Machine ID will not be
+      # able to authenticate with the cluster.
+      id-token: write
+      contents: read
+    name: example
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+    - name: Fetch kubectl
+      uses: azure/setup-kubectl@v3
+    - name: Fetch Teleport binaries
+      uses: teleport-actions/setup@v1
+      with:
+        version: 17.4.10
+    - name: Fetch credentials using Machine ID
+      uses: teleport-actions/auth-k8s@v2
+      with:
+        # Use the address of the auth/proxy server for your own cluster.
+        proxy: jojo.teleport.sh:443
+        # Use the name of the join token resource you created in step 1.
+        token: astria-ci
+        # Use the name of your Kubernetes cluster
+        kubernetes-cluster: astria-dev
+    - name: List pods
+      run: kubectl get pods -A
