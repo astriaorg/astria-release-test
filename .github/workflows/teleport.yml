@@ -20,6 +20,7 @@ jobs:
       uses: teleport-actions/setup@v1
       with:
         version: auto
+        proxy: jojo.teleport.sh:443
     - name: Fetch credentials using Machine ID
       uses: teleport-actions/auth-k8s@v2
       with:
