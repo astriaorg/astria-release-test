@@ -19,7 +19,7 @@ jobs:
     - name: Fetch Teleport binaries
       uses: teleport-actions/setup@v1
       with:
-        version: 17.4.10
+        version: auto
     - name: Fetch credentials using Machine ID
       uses: teleport-actions/auth-k8s@v2
       with:
