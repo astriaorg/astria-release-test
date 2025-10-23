@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.2.4](https://github.com/astriaorg/astria-release-test/compare/sequencer-v2.2.3...sequencer-v2.2.4) (2025-06-05)
+## [1.0.6](https://github.com/astriaorg/astria-release-test/compare/evm-bridge-withdrawer-v1.0.5...evm-bridge-withdrawer-v1.0.6) (2025-06-05)
 
 
 ### Bug Fixes

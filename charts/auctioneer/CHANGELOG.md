@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.2.4](https://github.com/astriaorg/astria-release-test/compare/sequencer-v2.2.3...sequencer-v2.2.4) (2025-06-05)
+## [0.0.3](https://github.com/astriaorg/astria-release-test/compare/auctioneer-v0.0.2...auctioneer-v0.0.3) (2025-06-05)
 
 
 ### Bug Fixes

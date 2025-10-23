@@ -11,7 +11,7 @@ global:
 # sequencer core images
 images:
   evmBridgeWithdrawer:
-    repo: ghcr.io/astriaorg/evm-bridge-withdrawer
+    repo: ghcr.io/astriaorg/evm-bridge-withdrawer-release-test
     pullPolicy: IfNotPresent
     tag: 1.0.2
     devTag: latest

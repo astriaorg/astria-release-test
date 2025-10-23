@@ -1,6 +1,6 @@
 # Changelog
 
-## [2.2.4](https://github.com/astriaorg/astria-release-test/compare/sequencer-v2.2.3...sequencer-v2.2.4) (2025-06-05)
+## [0.1.4](https://github.com/astriaorg/astria-release-test/compare/flame-rollup-v0.1.3...flame-rollup-v0.1.4) (2025-06-05)
 
 
 ### Bug Fixes

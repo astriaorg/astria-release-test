@@ -16,7 +16,7 @@ global:
 # sequencer core images
 images:
   sequencerRelayer:
-    repo: ghcr.io/astriaorg/sequencer-relayer
+    repo: ghcr.io/astriaorg/sequencer-relayer-release-test
     pullPolicy: IfNotPresent
     # Only used when global.dev is true OR global.network is set to `custom`
     tag: latest

@@ -1,0 +1,109 @@
+name: Reusable Sync Charts Workflow
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        description: 'Target environment (testnet or mainnet)'
+        required: true
+        type: string
+      commit_sha:
+        description: 'Commit SHA to use for charts'
+        required: true
+        type: string
+      component_tag:
+        description: 'Component tag (e.g., sequencer-relayer-v1.0.3)'
+        required: true
+        type: string
+    secrets:
+      CHARTS_RELEASE_TEST_REPO_TOKEN:
+        description: 'Token for accessing charts repository'
+        required: true
+
+jobs:
+  sync-charts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.commit_sha }}
+          fetch-depth: 1
+
+      - name: Read chart version from Chart.yaml
+        id: chart_version
+        run: |
+          # Parse component tag (e.g., sequencer-relayer-v1.0.3)
+          COMPONENT_TAG="${{ inputs.component_tag }}"
+          echo "📦 Using component tag: $COMPONENT_TAG"
+
+          if [[ "$COMPONENT_TAG" =~ ^([a-z-]+)-v([0-9]+\.[0-9]+\.[0-9]+.*)$ ]]; then
+            COMPONENT="${BASH_REMATCH[1]}"
+            CHART_VERSION="${BASH_REMATCH[2]}"
+            echo "✅ Extracted from component tag:"
+            echo "- Component: $COMPONENT"
+            echo "- Version: $CHART_VERSION"
+
+            # Store component name for later use
+            echo "component_name=${COMPONENT}" >> $GITHUB_OUTPUT
+            echo "chart_version=${CHART_VERSION}" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Invalid component tag format. Expected: component-name-v1.2.3"
+            exit 1
+          fi
+
+          echo "📊 Chart version: ${CHART_VERSION}"
+          echo "🎯 Environment: ${{ inputs.environment }}"
+          echo "📝 Note: Same chart version will be used across all environments"
+
+      - name: Clone and update charts repository
+        env:
+          GITHUB_TOKEN: ${{ secrets.CHARTS_RELEASE_TEST_REPO_TOKEN }}
+          REPO_NAME: astriaorg/charts-release-test
+        run: |
+          # Clone charts-release-test repo
+          git clone https://$GITHUB_TOKEN@github.com/$REPO_NAME.git charts-repo
+          cd charts-repo
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Copy charts and dev directories from source repo (matching original charts job behavior)
+          rsync -a --delete ../charts/ ./charts/ --exclude=charts/README.md
+          rsync -a --delete ../charts/README.md ./README.md
+          rsync -a --delete ../dev/ ./dev/
+
+          # Update Chart.yaml files with environment-specific version
+          CHART_VERSION="${{ steps.chart_version.outputs.chart_version }}"
+          COMPONENT_NAME="${{ steps.chart_version.outputs.component_name }}"
+          echo "🔄 Updating charts to version: ${CHART_VERSION}"
+          echo "Source commit: ${{ inputs.commit_sha }}"
+          echo "Environment: ${{ inputs.environment }}"
+
+          # Verify charts were copied correctly
+          echo "📁 Charts directory structure:"
+          find ./charts -name "Chart.yaml"
+
+          # Update the specific component's Chart.yaml
+          COMPONENT_CHART="./charts/${COMPONENT_NAME}/Chart.yaml"
+
+          if [[ -f "$COMPONENT_CHART" ]]; then
+            echo "🎯 Updating specific component chart: $COMPONENT_CHART"
+            sed -i "s/version: .*/version: ${CHART_VERSION}/" "$COMPONENT_CHART"
+            echo "✅ Updated $COMPONENT_NAME chart to version ${CHART_VERSION}"
+          else
+            echo "❌ Chart file not found: $COMPONENT_CHART"
+            exit 1
+          fi
+
+          # Commit and push charts
+          git add .
+          git commit -m "Changes from $REPO_NAME@${{ inputs.commit_sha }}"
+          git push origin main
+
+          echo "✅ Charts updated to version ${CHART_VERSION} and synced to $REPO_NAME"
+
+      - name: Chart sync summary
+        run: |
+          echo "🎉 Chart sync completed for ${{ inputs.environment }}"
+          echo "Chart version: ${{ steps.chart_version.outputs.chart_version }}"
+          echo "Source commit: ${{ inputs.commit_sha }}"

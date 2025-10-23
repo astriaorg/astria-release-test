@@ -20,11 +20,11 @@ global:
 # release for that network defined in the helpers file.
 images:
   geth:
-    repo: ghcr.io/astriaorg/astria-geth
+    repo: ghcr.io/astriaorg/astria-geth-release-test
     pullPolicy: IfNotPresent
     tag: latest
   conductor:
-    repo: ghcr.io/astriaorg/conductor
+    repo: ghcr.io/astriaorg/conductor-release-test
     pullPolicy: IfNotPresent
     tag: latest
   snapshot:
