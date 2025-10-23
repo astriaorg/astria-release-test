@@ -28,6 +28,6 @@ jobs:
         # Use the name of the join token resource you created in step 1.
         token: astria-ci
         # Use the name of your Kubernetes cluster
-        kubernetes-cluster: astria-dev
+        kubernetes-cluster: tim-dev
     - name: List pods
       run: kubectl get pods -A
