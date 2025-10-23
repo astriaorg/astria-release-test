@@ -29,5 +29,6 @@ jobs:
         token: astria-ci
         # Use the name of your Kubernetes cluster
         kubernetes-cluster: tim-dev
-    - name: List pods
-      run: kubectl get pods -A
+    - name: List namespace or pods
+      run: |
+        kubectl get ns || kubectl get pods -A
